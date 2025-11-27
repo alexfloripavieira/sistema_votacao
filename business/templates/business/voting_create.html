@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+
+{% block title %}Criar Nova Votação - Avaí FC{% endblock %}
+
+{% block content %}
+<div class='min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-8'>
+    <div class='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8'>
+        <!-- Back Button -->
+        <div class='mb-6'>
+            <a href='{% url "business:voting_list" %}' class='text-gray-400 hover:text-white transition inline-flex items-center'>
+                <svg class='w-5 h-5 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M10 19l-7-7m0 0l7-7m-7 7h18'></path>
+                </svg>
+                Voltar para Votações
+            </a>
+        </div>
+
+        <!-- Form -->
+        <div class='bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-8'>
+            <h1 class='text-3xl font-bold text-white mb-8'>Criar Nova Votação</h1>
+
+            <form method='post' id='votingForm'>
+                {% csrf_token %}
+
+                <!-- Title -->
+                <div class='mb-6'>
+                    <label for='id_title' class='block text-sm font-semibold text-gray-300 mb-2'>
+                        Título *
+                    </label>
+                    <input 
+                        type='text' 
+                        name='title' 
+                        id='id_title' 
+                        required
+                        maxlength='200'
+                        class='w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                        placeholder='Ex: Votação para escolha do uniforme 2025'
+                    >
+                </div>
+
+                <!-- Description -->
+                <div class='mb-6'>
+                    <label for='id_description' class='block text-sm font-semibold text-gray-300 mb-2'>
+                        Descrição
+                    </label>
+                    <textarea 
+                        name='description' 
+                        id='id_description' 
+                        rows='4'
+                        class='w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                        placeholder='Descreva os detalhes da votação...'
+                    ></textarea>
+                </div>
+
+                <!-- Dates -->
+                <div class='grid grid-cols-1 md:grid-cols-2 gap-6 mb-6'>
+                    <div>
+                        <label for='id_start_date' class='block text-sm font-semibold text-gray-300 mb-2'>
+                            Data de Início *
+                        </label>
+                        <input 
+                            type='datetime-local' 
+                            name='start_date' 
+                            id='id_start_date' 
+                            required
+                            class='w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                        >
+                    </div>
+                    <div>
+                        <label for='id_end_date' class='block text-sm font-semibold text-gray-300 mb-2'>
+                            Data de Término *
+                        </label>
+                        <input 
+                            type='datetime-local' 
+                            name='end_date' 
+                            id='id_end_date' 
+                            required
+                            class='w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                        >
+                    </div>
+                </div>
+
+                <!-- Checkboxes -->
+                <div class='mb-8 space-y-4'>
+                    <div class='flex items-center'>
+                        <input 
+                            type='checkbox' 
+                            name='requires_presence' 
+                            id='id_requires_presence' 
+                            checked
+                            class='w-5 h-5 text-avai-green focus:ring-avai-green focus:ring-2 rounded'
+                        >
+                        <label for='id_requires_presence' class='ml-3 text-gray-300'>
+                            Requer presença marcada para votar
+                        </label>
+                    </div>
+                    <div class='flex items-center'>
+                        <input 
+                            type='checkbox' 
+                            name='is_active' 
+                            id='id_is_active' 
+                            checked
+                            class='w-5 h-5 text-avai-green focus:ring-avai-green focus:ring-2 rounded'
+                        >
+                        <label for='id_is_active' class='ml-3 text-gray-300'>
+                            Votação ativa
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Voting Options -->
+                <div class='mb-8'>
+                    <div class='flex items-center justify-between mb-4'>
+                        <h2 class='text-xl font-bold text-white'>Opções de Voto</h2>
+                        <button 
+                            type='button' 
+                            id='addOptionBtn'
+                            class='bg-avai-green hover:bg-green-600 text-gray-900 px-4 py-2 rounded-lg transition duration-200 font-semibold text-sm'
+                        >
+                            + Adicionar Opção
+                        </button>
+                    </div>
+
+                    <div id='optionsContainer' class='space-y-4'>
+                        <!-- Option A -->
+                        <div class='option-item bg-gray-700 rounded-lg p-4 border border-gray-600'>
+                            <div class='flex items-center gap-4'>
+                                <input 
+                                    type='text' 
+                                    name='option_letters[]' 
+                                    value='A'
+                                    maxlength='1'
+                                    required
+                                    class='w-16 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white text-center font-bold focus:ring-2 focus:ring-blue-500'
+                                    placeholder='A'
+                                >
+                                <input 
+                                    type='text' 
+                                    name='option_texts[]' 
+                                    required
+                                    class='flex-1 bg-gray-600 border border-gray-500 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500'
+                                    placeholder='Texto da opção A'
+                                >
+                                <button 
+                                    type='button' 
+                                    class='remove-option text-red-400 hover:text-red-300 transition hidden'
+                                    onclick='removeOption(this)'
+                                >
+                                    <svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 18L18 6M6 6l12 12'></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Option B -->
+                        <div class='option-item bg-gray-700 rounded-lg p-4 border border-gray-600'>
+                            <div class='flex items-center gap-4'>
+                                <input 
+                                    type='text' 
+                                    name='option_letters[]' 
+                                    value='B'
+                                    maxlength='1'
+                                    required
+                                    class='w-16 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white text-center font-bold focus:ring-2 focus:ring-blue-500'
+                                    placeholder='B'
+                                >
+                                <input 
+                                    type='text' 
+                                    name='option_texts[]' 
+                                    required
+                                    class='flex-1 bg-gray-600 border border-gray-500 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500'
+                                    placeholder='Texto da opção B'
+                                >
+                                <button 
+                                    type='button' 
+                                    class='remove-option text-red-400 hover:text-red-300 transition hidden'
+                                    onclick='removeOption(this)'
+                                >
+                                    <svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 18L18 6M6 6l12 12'></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class='text-xs text-gray-400 mt-2'>* Mínimo 2 opções, máximo 10 opções</p>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class='flex justify-end space-x-4'>
+                    <a href='{% url "business:voting_list" %}' class='bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition duration-200 font-semibold'>
+                        Cancelar
+                    </a>
+                    <button type='submit' class='bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg transition duration-200 font-semibold'>
+                        Criar Votação
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let optionCount = 2;
+const maxOptions = 10;
+const letters = 'ABCDEFGHIJ';
+
+// Add new option
+document.getElementById('addOptionBtn').addEventListener('click', function() {
+    if (optionCount >= maxOptions) {
+        alert('Máximo de ' + maxOptions + ' opções atingido.');
+        return;
+    }
+
+    const container = document.getElementById('optionsContainer');
+    const newOption = document.createElement('div');
+    newOption.className = 'option-item bg-gray-700 rounded-lg p-4 border border-gray-600';
+    newOption.innerHTML = `
+        <div class='flex items-center gap-4'>
+            <input 
+                type='text' 
+                name='option_letters[]' 
+                value='${letters[optionCount]}'
+                maxlength='1'
+                required
+                class='w-16 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white text-center font-bold focus:ring-2 focus:ring-blue-500'
+                placeholder='${letters[optionCount]}'
+            >
+            <input 
+                type='text' 
+                name='option_texts[]' 
+                required
+                class='flex-1 bg-gray-600 border border-gray-500 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500'
+                placeholder='Texto da opção ${letters[optionCount]}'
+            >
+            <button 
+                type='button' 
+                class='remove-option text-red-400 hover:text-red-300 transition'
+                onclick='removeOption(this)'
+            >
+                <svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 18L18 6M6 6l12 12'></path>
+                </svg>
+            </button>
+        </div>
+    `;
+    
+    container.appendChild(newOption);
+    optionCount++;
+    updateRemoveButtons();
+});
+
+// Remove option
+function removeOption(button) {
+    const optionItem = button.closest('.option-item');
+    optionItem.remove();
+    optionCount--;
+    updateRemoveButtons();
+}
+
+// Update remove buttons visibility
+function updateRemoveButtons() {
+    const options = document.querySelectorAll('.option-item');
+    const removeButtons = document.querySelectorAll('.remove-option');
+    
+    removeButtons.forEach((btn, index) => {
+        if (options.length <= 2) {
+            btn.classList.add('hidden');
+        } else {
+            btn.classList.remove('hidden');
+        }
+    });
+}
+
+// Form validation
+document.getElementById('votingForm').addEventListener('submit', function(e) {
+    const startDate = new Date(document.getElementById('id_start_date').value);
+    const endDate = new Date(document.getElementById('id_end_date').value);
+    
+    if (endDate <= startDate) {
+        e.preventDefault();
+        alert('A data de término deve ser posterior à data de início.');
+        return;
+    }
+    
+    const options = document.querySelectorAll('[name="option_texts[]"]');
+    if (options.length < 2) {
+        e.preventDefault();
+        alert('É necessário adicionar pelo menos 2 opções.');
+        return;
+    }
+    
+    // Check for duplicate letters
+    const letters = Array.from(document.querySelectorAll('[name="option_letters[]"]')).map(input => input.value.toUpperCase());
+    const uniqueLetters = new Set(letters);
+    if (letters.length !== uniqueLetters.size) {
+        e.preventDefault();
+        alert('Letras das opções devem ser únicas.');
+        return;
+    }
+});
+
+// Initialize remove buttons visibility
+updateRemoveButtons();
+</script>
+{% endblock %}

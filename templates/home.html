@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Sistema de Votação Eletrônica{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="min-h-screen flex items-center justify-center px-4 py-16">
+    <div class="text-center max-w-4xl">
+        <!-- Logo/Badge -->
+        <div class="mb-8">
+            <div class="inline-block bg-gray-800 rounded-full p-6 shadow-2xl">
+                <svg class="w-20 h-20 text-avai-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Title -->
+        <h1 class="text-5xl md:text-6xl font-bold text-white mb-4">
+            Sistema de Votação Eletrônica
+        </h1>
+        <p class="text-2xl md:text-3xl text-gray-300 mb-6">
+            Conselho Deliberativo - Avai FC
+        </p>
+        
+        <!-- Description -->
+        <p class="text-lg text-gray-400 mb-12 max-w-2xl mx-auto">
+            Participe das votações do Conselho Deliberativo de forma segura, transparente e moderna. 
+            Vote remotamente e acompanhe os resultados em tempo real.
+        </p>
+        
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+            <a href="{% url 'accounts:login' %}" 
+               class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-8 py-4 transition-colors font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all">
+                Fazer Login
+            </a>
+            <a href="{% url 'accounts:register' %}" 
+               class="bg-avai-green hover:bg-green-600 text-white rounded-lg px-8 py-4 transition-colors font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all">
+                Cadastre-se
+            </a>
+        </div>
+        
+        <!-- Features -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+            <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
+                <div class="text-blue-500 mb-4">
+                    <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-2">Seguro</h3>
+                <p class="text-gray-400">Sistema com autenticação e controle de acesso</p>
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
+                <div class="text-avai-green mb-4">
+                    <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-2">Rápido</h3>
+                <p class="text-gray-400">Resultados instantâneos e em tempo real</p>
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
+                <div class="text-purple-500 mb-4">
+                    <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-2">Transparente</h3>
+                <p class="text-gray-400">Relatórios detalhados e auditoria completa</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

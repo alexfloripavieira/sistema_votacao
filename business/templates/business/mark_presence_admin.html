@@ -1,0 +1,367 @@
+{% extends 'base.html' %}
+
+{% block title %}Marcar Presença - Admin{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-white mb-2">Marcar Presença</h1>
+            {% if active_meeting %}
+            <p class="text-gray-300">Reunião: <strong>{{ active_meeting.title }}</strong> - {{ active_meeting.meeting_date|date:'d/m/Y' }}</p>
+            {% else %}
+            <p class="text-red-400">⚠️ Nenhuma reunião ativa. <a href="#start-meeting" class="underline">Inicie uma reunião</a> para marcar presenças.</p>
+            {% endif %}
+        </div>
+
+        <!-- Statistics Cards -->
+        {% if active_meeting %}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-gray-800 border border-gray-700 rounded-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm mb-1">Total de Usuários</p>
+                        <p class="text-3xl font-bold text-white">{{ total_users }}</p>
+                    </div>
+                    <div class="bg-blue-600 rounded-full p-3">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 border border-gray-700 rounded-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm mb-1">Presentes na Reunião</p>
+                        <p class="text-3xl font-bold text-green-400" id="total-present">{{ total_present }}</p>
+                    </div>
+                    <div class="bg-green-600 rounded-full p-3">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 border border-gray-700 rounded-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm mb-1">Taxa de Presença</p>
+                        <p class="text-3xl font-bold text-blue-400" id="presence-rate">
+                            {% if total_users > 0 %}
+                                {{ total_present|floatformat:0 }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="bg-purple-600 rounded-full p-3">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Search Bar -->
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
+            <form method="get" class="flex gap-4">
+                <div class="flex-1">
+                    <label for="search" class="block text-sm font-medium text-gray-300 mb-2">Buscar Usuário</label>
+                    <input 
+                        type="text" 
+                        id="search" 
+                        name="search" 
+                        value="{{ search_query }}"
+                        placeholder="Digite o nome, username ou email..."
+                        class="w-full px-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                </div>
+                <div class="flex items-end gap-2">
+                    <button 
+                        type="submit" 
+                        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                    >
+                        Buscar
+                    </button>
+                    {% if search_query %}
+                    <a 
+                        href="{% url 'business:mark_presence_admin' %}" 
+                        class="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors"
+                    >
+                        Limpar
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+
+        <!-- Start Meeting Section -->
+        {% if not active_meeting %}
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-6" id="start-meeting">
+            <h2 class="text-xl font-semibold text-white mb-4">Iniciar Nova Reunião</h2>
+            <form method="post" action="{% url 'business:start_meeting' %}" class="space-y-4">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="meeting_title" class="block text-sm font-medium text-gray-300 mb-2">Título da Reunião</label>
+                        <input
+                            type="text"
+                            id="meeting_title"
+                            name="title"
+                            required
+                            placeholder="Ex: Reunião Ordinária Janeiro 2025"
+                            class="w-full px-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                    </div>
+                    <div>
+                        <label for="meeting_date" class="block text-sm font-medium text-gray-300 mb-2">Data da Reunião</label>
+                        <input
+                            type="date"
+                            id="meeting_date"
+                            name="meeting_date"
+                            required
+                            value="{{ 'now'|date:'Y-m-d' }}"
+                            class="w-full px-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <button
+                        type="submit"
+                        class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                    >
+                        Iniciar Reunião
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Users List -->
+        {% if active_meeting %}
+        <div class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-700">
+                <h2 class="text-xl font-semibold text-white">
+                    Lista de Associados
+                    {% if search_query %}
+                        <span class="text-gray-400 text-base font-normal">- Resultados para "{{ search_query }}"</span>
+                    {% endif %}
+                </h2>
+            </div>
+
+            {% if users %}
+            <div class="divide-y divide-gray-700">
+                {% for user in users %}
+                <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-750 transition-colors" data-user-id="{{ user.id }}">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                            {{ user.first_name.0|default:user.username.0|upper }}{{ user.last_name.0|upper|default:'' }}
+                        </div>
+                        <div>
+                            <p class="text-white font-medium">
+                                {% if user.first_name %}
+                                    {{ user.first_name }} {{ user.last_name }}
+                                {% else %}
+                                    {{ user.username }}
+                                {% endif %}
+                            </p>
+                            <p class="text-gray-400 text-sm">@{{ user.username }}</p>
+                        </div>
+                    </div>
+
+                    <button 
+                        onclick="togglePresence({{ user.id }})"
+                        class="presence-btn px-6 py-2 rounded-lg font-medium transition-all duration-200 {% if user.id in today_presences %}bg-green-600 hover:bg-green-700 text-white{% else %}bg-gray-700 hover:bg-gray-600 text-gray-300{% endif %}"
+                        data-present="{% if user.id in today_presences %}true{% else %}false{% endif %}"
+                    >
+                        <span class="status-text">
+                            {% if user.id in today_presences %}✓ Presente{% else %}✗ Ausente{% endif %}
+                        </span>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="px-6 py-4 border-t border-gray-700 flex items-center justify-between">
+                <div class="text-gray-400 text-sm">
+                    Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ page_obj.paginator.count }} usuários
+                </div>
+                <div class="flex gap-2">
+                    {% if page_obj.has_previous %}
+                    <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors">Primeira</a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors">Anterior</a>
+                    {% endif %}
+                    
+                    <span class="px-3 py-1 bg-blue-600 text-white rounded">{{ page_obj.number }}</span>
+                    
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors">Próxima</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors">Última</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="px-6 py-12 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                </svg>
+                <p class="text-gray-400 text-lg">Nenhum usuário encontrado</p>
+                {% if search_query %}
+                <p class="text-gray-500 mt-2">Tente outra busca</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Close Meeting Section -->
+        {% if active_meeting %}
+        <div class="mt-6 bg-red-900 border border-red-700 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-white mb-4">Encerrar Reunião</h3>
+            <p class="text-red-200 mb-4">
+                Atenção: Ao encerrar a reunião, não será mais possível alterar as presenças.
+                Esta ação é irreversível.
+            </p>
+            <form method="post" action="{% url 'business:close_meeting' %}" class="flex justify-end">
+                {% csrf_token %}
+                <button
+                    type="submit"
+                    onclick="return confirm('Tem certeza que deseja encerrar a reunião?')"
+                    class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+                >
+                    Encerrar Reunião
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Back Button -->
+        <div class="mt-6">
+            <a href="{% url 'business:admin_dashboard' %}" class="inline-flex items-center px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Voltar ao Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full opacity-0 z-50">
+    <p id="toast-message" class="text-white font-medium"></p>
+</div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function showToast(message, isSuccess = true) {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+    
+    toastMessage.textContent = message;
+    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 z-50 ${isSuccess ? 'bg-green-600' : 'bg-red-600'}`;
+    
+    // Show toast
+    setTimeout(() => {
+        toast.classList.remove('translate-x-full', 'opacity-0');
+    }, 100);
+    
+    // Hide toast after 3 seconds
+    setTimeout(() => {
+        toast.classList.add('translate-x-full', 'opacity-0');
+    }, 3000);
+}
+
+function updateStatistics() {
+    const totalPresent = document.querySelectorAll('[data-present="true"]').length;
+    const totalUsers = {{ total_users }};
+    const presenceRate = totalUsers > 0 ? Math.round((totalPresent / totalUsers) * 100) : 0;
+
+    document.getElementById('total-present').textContent = totalPresent;
+    document.getElementById('presence-rate').textContent = presenceRate + '%';
+}
+
+function togglePresence(userId) {
+    // Check if there's an active meeting
+    {% if not active_meeting %}
+    showToast('Não há reunião ativa. Inicie uma reunião primeiro.', false);
+    return;
+    {% endif %}
+
+    const btn = document.querySelector(`[data-user-id="${userId}"] .presence-btn`);
+    const statusText = btn.querySelector('.status-text');
+    const isPresent = btn.getAttribute('data-present') === 'true';
+
+    // Disable button during request
+    btn.disabled = true;
+    btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+    fetch(`{% url 'business:toggle_presence' 0 %}`.replace('0', userId), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update button state
+            btn.setAttribute('data-present', data.present);
+
+            if (data.present) {
+                btn.className = 'presence-btn px-6 py-2 rounded-lg font-medium transition-all duration-200 bg-green-600 hover:bg-green-700 text-white';
+                statusText.textContent = '✓ Presente';
+            } else {
+                btn.className = 'presence-btn px-6 py-2 rounded-lg font-medium transition-all duration-200 bg-gray-700 hover:bg-gray-600 text-gray-300';
+                statusText.textContent = '✗ Ausente';
+            }
+
+            // Update statistics
+            updateStatistics();
+
+            // Show success message
+            showToast(data.message, true);
+        } else {
+            showToast(data.message, false);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Erro ao marcar presença. Tente novamente.', false);
+    })
+    .finally(() => {
+        // Re-enable button
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+    });
+}
+
+// Auto-focus search input
+document.getElementById('search').focus();
+</script>
+{% endblock %}

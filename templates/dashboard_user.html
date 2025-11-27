@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Avaí FC{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-white mb-2">Dashboard</h1>
+            <p class="text-gray-300">Bem-vindo, {{ user.first_name|default:user.username }}!</p>
+        </div>
+
+        <!-- Votações Ativas Card -->
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-8">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-2">Votações Ativas</h2>
+                    <p class="text-gray-400">
+                        {% if has_active_votings %}
+                            Há {{ active_votings_count }} votação{{ active_votings_count|pluralize }} ativa{{ active_votings_count|pluralize }} no momento
+                        {% else %}
+                            Nenhuma votação ativa no momento
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="bg-blue-600 rounded-full p-4">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Botão Votar -->
+            <div class="flex justify-center">
+                {% if has_active_votings %}
+                <a href="{% url 'business:voting_list' %}"
+                   class="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200 transform hover:scale-105">
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Votar Agora
+                </a>
+                {% else %}
+                <button disabled
+                        class="inline-flex items-center px-8 py-4 bg-gray-600 text-gray-400 font-semibold rounded-lg cursor-not-allowed opacity-50">
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Aguardando Votações
+                </button>
+                {% endif %}
+            </div>
+
+            <!-- Lista de Votações Ativas (se houver) -->
+            {% if has_active_votings %}
+            <div class="mt-8">
+                <h3 class="text-lg font-semibold text-white mb-4">Votações Disponíveis</h3>
+                <div class="space-y-3">
+                    {% for voting in active_votings %}
+                    <div class="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                        <div class="flex-1">
+                            <h4 class="text-white font-medium">{{ voting.title }}</h4>
+                            <p class="text-gray-400 text-sm mt-1">{{ voting.description|truncatechars:100 }}</p>
+                            <div class="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                                <span>Início: {{ voting.start_date|date:'d/m/Y H:i' }}</span>
+                                <span>Fim: {{ voting.end_date|date:'d/m/Y H:i' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Footer Info -->
+        <div class="mt-8 text-center">
+            <p class="text-gray-400 text-sm">
+                Sistema de Votação Avaí FC - {{ 'now'|date:'Y' }}
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

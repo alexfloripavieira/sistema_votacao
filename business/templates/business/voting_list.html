@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}Votações Ativas - Avaí FC{% endblock %}
+
+{% block content %}
+<div class='min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-8'>
+    <div class='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+        <!-- Header -->
+        <div class='flex justify-between items-center mb-8'>
+            <div>
+                <h1 class='text-3xl font-bold text-white mb-2'>Votações Ativas</h1>
+                <p class='text-gray-400'>Participe das decisões do Avaí FC</p>
+            </div>
+            
+            {% if user.is_staff %}
+            <a href='{% url "business:voting_create" %}' class='bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition duration-200 font-semibold'>
+                + Nova Votação
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Votings Grid -->
+        {% if votings %}
+        <div class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+            {% for voting in votings %}
+            <div class='bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden hover:border-blue-500 transition duration-300'>
+                <div class='p-6'>
+                    <!-- Voting Title -->
+                    <div class='flex items-start justify-between mb-4'>
+                        <h3 class='text-xl font-bold text-white flex-1'>{{ voting.title }}</h3>
+                        {% if voting.id in user_votes %}
+                        <span class='bg-avai-green text-gray-900 text-xs font-semibold px-2 py-1 rounded-full ml-2'>
+                            ✓ Votado
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Description -->
+                    {% if voting.description %}
+                    <p class='text-gray-400 text-sm mb-4 line-clamp-3'>{{ voting.description }}</p>
+                    {% endif %}
+
+                    <!-- Stats -->
+                    <div class='flex items-center justify-between mb-4 pb-4 border-b border-gray-700'>
+                        <div class='flex items-center space-x-4'>
+                            <div class='text-center'>
+                                <div class='text-2xl font-bold text-avai-green'>{{ voting.total_votes }}</div>
+                                <div class='text-xs text-gray-400'>Votos</div>
+                            </div>
+                            <div class='text-center'>
+                                <div class='text-2xl font-bold text-blue-400'>{{ voting.options.count }}</div>
+                                <div class='text-xs text-gray-400'>Opções</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dates -->
+                    <div class='space-y-2 mb-4'>
+                        <div class='flex items-center text-xs text-gray-400'>
+                            <svg class='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'></path>
+                            </svg>
+                            Início: {{ voting.start_date|date:'d/m/Y H:i' }}
+                        </div>
+                        <div class='flex items-center text-xs text-gray-400'>
+                            <svg class='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'></path>
+                            </svg>
+                            Término: {{ voting.end_date|date:'d/m/Y H:i' }}
+                        </div>
+                    </div>
+
+                    <!-- Action Button -->
+                    {% if user.is_staff %}
+                    <a href='{% url "business:voting_detail" voting.pk %}' class='block w-full text-center bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition duration-200 font-semibold'>
+                        {% if voting.id in user_votes %}
+                        Ver Resultados
+                        {% else %}
+                        Votar Agora
+                        {% endif %}
+                    </a>
+                    {% else %}
+                    {% if voting.id in user_votes %}
+                    <button disabled class='block w-full text-center bg-gray-600 text-gray-400 py-3 rounded-lg font-semibold cursor-not-allowed opacity-50'>
+                        ✓ Já Votou
+                    </button>
+                    {% else %}
+                    <a href='{% url "business:voting_detail" voting.pk %}' class='block w-full text-center bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition duration-200 font-semibold'>
+                        Votar Agora
+                    </a>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class='mt-8 flex justify-center'>
+            <div class='flex space-x-2'>
+                {% if page_obj.has_previous %}
+                <a href='?page={{ page_obj.previous_page_number }}' class='bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition'>
+                    Anterior
+                </a>
+                {% endif %}
+
+                <span class='bg-gray-800 text-white px-4 py-2 rounded-lg border border-gray-700'>
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                <a href='?page={{ page_obj.next_page_number }}' class='bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition'>
+                    Próxima
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- Empty State -->
+        <div class='bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-12 text-center'>
+            <svg class='w-16 h-16 text-gray-600 mx-auto mb-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'></path>
+            </svg>
+            <h3 class='text-xl font-semibold text-gray-300 mb-2'>Nenhuma Votação Ativa</h3>
+            <p class='text-gray-400 mb-6'>Não há votações abertas no momento.</p>
+            {% if user.is_staff %}
+            <a href='{% url "business:voting_create" %}' class='inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition duration-200 font-semibold'>
+                Criar Nova Votação
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

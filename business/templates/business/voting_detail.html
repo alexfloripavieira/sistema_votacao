@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ voting.title }} - Avaí FC{% endblock %}
+
+{% block content %}
+<div class='min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-8'>
+    <div class='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8'>
+        <!-- Back Button -->
+        <div class='mb-6'>
+            <a href='{% url "business:voting_list" %}' class='text-gray-400 hover:text-white transition inline-flex items-center'>
+                <svg class='w-5 h-5 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M10 19l-7-7m0 0l7-7m-7 7h18'></path>
+                </svg>
+                Voltar para Votações
+            </a>
+        </div>
+
+        <!-- Voting Header -->
+        <div class='bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-8 mb-6'>
+            <div class='flex items-start justify-between mb-4'>
+                <h1 class='text-3xl font-bold text-white flex-1'>{{ voting.title }}</h1>
+                {% if has_voted %}
+                <span class='bg-avai-green text-gray-900 text-sm font-semibold px-3 py-1 rounded-full ml-4'>
+                    ✓ Você já votou
+                </span>
+                {% endif %}
+            </div>
+
+            {% if voting.description %}
+            <p class='text-gray-300 text-lg mb-6'>{{ voting.description }}</p>
+            {% endif %}
+
+            <!-- Voting Info -->
+            <div class='grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 pb-6 border-b border-gray-700'>
+                <div class='text-center'>
+                    <div class='text-3xl font-bold text-avai-green mb-1'>{{ voting.total_votes }}</div>
+                    <div class='text-sm text-gray-400'>Total de Votos</div>
+                </div>
+                <div class='text-center'>
+                    <div class='text-3xl font-bold text-blue-400 mb-1'>{{ options|length }}</div>
+                    <div class='text-sm text-gray-400'>Opções</div>
+                </div>
+                <div class='text-center'>
+                    {% if is_open %}
+                    <div class='text-3xl font-bold text-avai-green mb-1'>●</div>
+                    <div class='text-sm text-gray-400'>Votação Aberta</div>
+                    {% else %}
+                    <div class='text-3xl font-bold text-red-400 mb-1'>●</div>
+                    <div class='text-sm text-gray-400'>Votação Encerrada</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Dates -->
+            <div class='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div class='flex items-center text-sm text-gray-400'>
+                    <svg class='w-5 h-5 mr-2 text-avai-green' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'></path>
+                    </svg>
+                    Início: {{ voting.start_date|date:'d/m/Y às H:i' }}
+                </div>
+                <div class='flex items-center text-sm text-gray-400'>
+                    <svg class='w-5 h-5 mr-2 text-red-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'></path>
+                    </svg>
+                    Término: {{ voting.end_date|date:'d/m/Y às H:i' }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Voting Options -->
+        <div class='bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-8'>
+            <h2 class='text-2xl font-bold text-white mb-6'>Opções de Voto</h2>
+
+            {% if not is_open %}
+            <div class='bg-red-900/20 border border-red-500 rounded-lg p-4 mb-6'>
+                <p class='text-red-400 text-center font-semibold'>Esta votação está encerrada.</p>
+            </div>
+            {% elif has_voted %}
+            <div class='bg-avai-green/20 border border-avai-green rounded-lg p-4 mb-6'>
+                <p class='text-avai-green text-center font-semibold'>
+                    Você votou na opção: {{ user_vote.option.option_letter }}. {{ user_vote.option.option_text }}
+                </p>
+            </div>
+            {% elif voting.requires_presence and not has_presence %}
+            <div class='bg-yellow-900/20 border border-yellow-500 rounded-lg p-4 mb-6'>
+                <p class='text-yellow-400 text-center font-semibold'>
+                    Você precisa marcar presença antes de votar.
+                    <a href='{% url "business:today_presence" %}' class='underline hover:text-yellow-300'>Marcar presença agora</a>
+                </p>
+            </div>
+            {% endif %}
+
+            <form method='post' action='{% url "business:cast_vote" voting.pk %}' id='votingForm'>
+                {% csrf_token %}
+                <div class='space-y-4'>
+                    {% for option in options %}
+                    <div class='voting-option {% if has_voted and user_vote.option.id == option.id %}border-avai-green{% else %}border-gray-700{% endif %} border-2 rounded-lg p-6 hover:border-blue-500 transition duration-200 cursor-pointer {% if has_voted or not is_open or voting.requires_presence and not has_presence %}opacity-50 cursor-not-allowed{% endif %}'>
+                        <label class='flex items-center cursor-pointer {% if has_voted or not is_open or voting.requires_presence and not has_presence %}cursor-not-allowed{% endif %}'>
+                            <input 
+                                type='radio' 
+                                name='option_id' 
+                                value='{{ option.id }}' 
+                                class='w-5 h-5 text-avai-green focus:ring-avai-green focus:ring-2'
+                                {% if has_voted or not is_open or voting.requires_presence and not has_presence %}disabled{% endif %}
+                                {% if has_voted and user_vote.option.id == option.id %}checked{% endif %}
+                            >
+                            <div class='ml-4 flex-1'>
+                                <div class='flex items-center justify-between'>
+                                    <span class='text-xl font-bold text-white'>
+                                        {{ option.option_letter }}. {{ option.option_text }}
+                                    </span>
+                                    {% if has_voted %}
+                                    <span class='text-gray-400 text-sm'>
+                                        {{ option.votes_count }} voto{{ option.votes_count|pluralize }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                {% if has_voted %}
+                                <div class='mt-2'>
+                                    <div class='bg-gray-700 rounded-full h-2 overflow-hidden'>
+                                        {% widthratio option.votes_count voting.total_votes 100 as percentage %}
+                                        <div class='bg-avai-green h-full' style='width: {{ percentage }}%'></div>
+                                    </div>
+                                    <div class='text-xs text-gray-400 mt-1'>{{ percentage }}%</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% if not has_voted and is_open and has_presence %}
+                <div class='mt-8 flex justify-center'>
+                    <button type='submit' class='bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg transition duration-200 font-bold text-lg'>
+                        Confirmar Voto
+                    </button>
+                </div>
+                {% endif %}
+            </form>
+
+            <!-- View Results Button (Only for Staff) -->
+            {% if user.is_staff %}
+            <div class='mt-6 text-center'>
+                <a href='{% url "business:voting_results" voting.pk %}' class='inline-block bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition duration-200 font-semibold'>
+                    Ver Resultados Detalhados
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation
+document.getElementById('votingForm')?.addEventListener('submit', function(e) {
+    const selected = document.querySelector('input[name="option_id"]:checked');
+    if (!selected) {
+        e.preventDefault();
+        alert('Por favor, selecione uma opção antes de confirmar seu voto.');
+    } else {
+        if (!confirm('Tem certeza que deseja confirmar seu voto? Esta ação não pode ser desfeita.')) {
+            e.preventDefault();
+        }
+    }
+});
+
+// Highlight selected option
+document.querySelectorAll('.voting-option').forEach(option => {
+    option.addEventListener('click', function() {
+        if (!this.querySelector('input').disabled) {
+            this.querySelector('input').checked = true;
+        }
+    });
+});
+</script>
+{% endblock %}

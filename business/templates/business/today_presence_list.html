@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Presença de Hoje - Sistema de Votação{% endblock %}
+
+{% block content %}
+<div class="min-h-screen p-8">
+    <div class="container mx-auto max-w-6xl">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-white mb-2">Presença de Hoje</h1>
+                <p class="text-gray-400">{{ today|date:"d/m/Y" }} - {{ total_present }} presente(s)</p>
+            </div>
+            
+            <div class="flex gap-4">
+                <a href="{% url 'business:presence_list' %}" 
+                   class="bg-gray-600 hover:bg-gray-700 text-white rounded-lg px-4 py-2 transition-colors">
+                    Ver Histórico
+                </a>
+                {% if not has_marked_today %}
+                <form method="post" action="{% url 'business:mark_presence' %}">
+                    {% csrf_token %}
+                    <button type="submit" 
+                            class="bg-green-600 hover:bg-green-700 text-white rounded-lg px-6 py-2 transition-colors font-semibold">
+                        Marcar Presença
+                    </button>
+                </form>
+                {% else %}
+                <div class="bg-green-600 text-white rounded-lg px-6 py-2 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Presença Confirmada</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Lista de Presentes -->
+        {% if presences %}
+        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-700">
+                        <tr>
+                            <th class="px-6 py-4 text-gray-300 font-semibold">Usuário</th>
+                            <th class="px-6 py-4 text-gray-300 font-semibold">Nome Completo</th>
+                            <th class="px-6 py-4 text-gray-300 font-semibold">Horário</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for presence in presences %}
+                        <tr class="border-b border-gray-700 hover:bg-gray-700 transition-colors">
+                            <td class="px-6 py-4 text-white">
+                                <div class="flex items-center gap-3">
+                                    <div class="bg-green-600 rounded-full w-10 h-10 flex items-center justify-center font-semibold">
+                                        {{ presence.user.username|slice:":1"|upper }}
+                                    </div>
+                                    <span>{{ presence.user.username }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-gray-300">
+                                {{ presence.user.get_full_name|default:"-" }}
+                            </td>
+                            <td class="px-6 py-4 text-gray-300">
+                                {{ presence.created_at|date:"H:i" }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-gray-800 rounded-lg p-12 text-center">
+            <svg class="w-20 h-20 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+            <h3 class="text-xl font-semibold text-white mb-2">Nenhuma presença registrada hoje</h3>
+            <p class="text-gray-400">Seja o primeiro a marcar presença!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

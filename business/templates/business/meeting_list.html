@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Histórico de Reuniões - Avaí FC{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-white mb-2">Histórico de Reuniões</h1>
+            <p class="text-gray-300">Reuniões realizadas e suas presenças</p>
+        </div>
+
+        <!-- Meetings List -->
+        {% if meetings %}
+        <div class="space-y-6">
+            {% for meeting in meetings %}
+            <div class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+                <div class="p-6">
+                    <!-- Meeting Header -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-white">{{ meeting.title }}</h3>
+                            <p class="text-gray-400">Data: {{ meeting.meeting_date|date:'d/m/Y' }}</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            {% if meeting.is_active %}
+                            <span class="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                Ativa
+                            </span>
+                            {% else %}
+                            <span class="bg-gray-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                Encerrada
+                            </span>
+                            {% endif %}
+                            <span class="text-gray-400 text-sm">
+                                Criada por: {{ meeting.created_by.get_full_name|default:meeting.created_by.username }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Meeting Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-2xl font-bold text-blue-400">{{ meeting.presences.count }}</div>
+                            <div class="text-sm text-gray-400">Total de Presenças</div>
+                        </div>
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-2xl font-bold text-green-400">{{ meeting.total_presences_count }}</div>
+                            <div class="text-sm text-gray-400">Presentes</div>
+                        </div>
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-2xl font-bold text-red-400">{{ meeting.absent_count }}</div>
+                            <div class="text-sm text-gray-400">Ausentes</div>
+                        </div>
+                    </div>
+
+                    <!-- Meeting Details -->
+                    <div class="text-sm text-gray-400">
+                        <p>Criada em: {{ meeting.created_at|date:'d/m/Y H:i' }}</p>
+                        {% if meeting.closed_at %}
+                        <p>Encerrada em: {{ meeting.closed_at|date:'d/m/Y H:i' }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="mt-8 flex justify-center">
+            <div class="flex space-x-2">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+                    Anterior
+                </a>
+                {% endif %}
+
+                <span class="bg-gray-800 text-white px-4 py-2 rounded-lg border border-gray-700">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+                    Próxima
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- Empty State -->
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-12 text-center">
+            <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4v10a2 2 0 002 2h4a2 2 0 002-2V11M9 11h6"></path>
+            </svg>
+            <h3 class="text-xl font-semibold text-gray-300 mb-2">Nenhuma Reunião Encontrada</h3>
+            <p class="text-gray-400 mb-6">Não há reuniões cadastradas no sistema.</p>
+            <a href="{% url 'business:admin_dashboard' %}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition duration-200 font-semibold">
+                Voltar ao Dashboard
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Back Button -->
+        <div class="mt-8">
+            <a href="{% url 'business:admin_dashboard' %}" class="inline-flex items-center px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Voltar ao Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

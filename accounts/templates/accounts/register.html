@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}Cadastro - Sistema de Votação{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-8">
+    <div class="bg-gray-800 rounded-lg p-8 shadow-lg w-full max-w-md">
+        <h1 class="text-3xl font-bold text-white mb-6 text-center">Cadastro</h1>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-600{% else %}bg-green-600{% endif %} text-white">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            
+            <div>
+                <label for="username" class="block text-gray-300 mb-2">Nome de Usuário</label>
+                <input type="text" 
+                       name="username" 
+                       id="username"
+                       required
+                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white w-full"
+                       placeholder="Escolha um nome de usuário">
+            </div>
+            
+            <div>
+                <label for="email" class="block text-gray-300 mb-2">E-mail</label>
+                <input type="email" 
+                       name="email" 
+                       id="email"
+                       required
+                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white w-full"
+                       placeholder="seu@email.com">
+            </div>
+            
+            <div>
+                <label for="first_name" class="block text-gray-300 mb-2">Nome</label>
+                <input type="text" 
+                       name="first_name" 
+                       id="first_name"
+                       required
+                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white w-full"
+                       placeholder="Seu nome">
+            </div>
+            
+            <div>
+                <label for="last_name" class="block text-gray-300 mb-2">Sobrenome</label>
+                <input type="text" 
+                       name="last_name" 
+                       id="last_name"
+                       required
+                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white w-full"
+                       placeholder="Seu sobrenome">
+            </div>
+            
+            <div>
+                <label for="password1" class="block text-gray-300 mb-2">Senha</label>
+                <input type="password" 
+                       name="password1" 
+                       id="password1"
+                       required
+                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white w-full"
+                       placeholder="Escolha uma senha">
+            </div>
+            
+            <div>
+                <label for="password2" class="block text-gray-300 mb-2">Confirmar Senha</label>
+                <input type="password" 
+                       name="password2" 
+                       id="password2"
+                       required
+                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white w-full"
+                       placeholder="Confirme sua senha">
+            </div>
+            
+            <button type="submit" 
+                    class="w-full bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-3 transition-colors font-semibold">
+                Cadastrar
+            </button>
+        </form>
+
+        <div class="mt-6 text-center">
+            <p class="text-gray-300">
+                Já tem uma conta?
+                <a href="{% url 'accounts:login' %}" class="text-blue-400 hover:text-blue-300">
+                    Faça login
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Username validation
+document.getElementById('username').addEventListener('blur', function() {
+    const username = this.value.trim();
+    const errorDiv = document.getElementById('username-error');
+
+    if (username.length < 3) {
+        showUsernameError('Nome de usuário deve ter pelo menos 3 caracteres');
+        return;
+    }
+
+    // Check if username contains only valid characters
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    if (!usernameRegex.test(username)) {
+        showUsernameError('Nome de usuário pode conter apenas letras, números e underscore');
+        return;
+    }
+
+    // Clear any existing error
+    if (errorDiv) {
+        errorDiv.remove();
+    }
+});
+
+function showUsernameError(message) {
+    let errorDiv = document.getElementById('username-error');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'username-error';
+        errorDiv.className = 'text-red-400 text-sm mt-1';
+        document.getElementById('username').parentNode.appendChild(errorDiv);
+    }
+    errorDiv.textContent = message;
+}
+
+// Form validation before submit
+document.querySelector('form').addEventListener('submit', function(e) {
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password1 = document.querySelector('input[name="password1"]').value;
+    const password2 = document.querySelector('input[name="password2"]').value;
+
+    // Basic validations
+    if (username.length < 3) {
+        e.preventDefault();
+        alert('Nome de usuário deve ter pelo menos 3 caracteres');
+        return;
+    }
+
+    if (!email.includes('@')) {
+        e.preventDefault();
+        alert('Digite um email válido');
+        return;
+    }
+
+    if (password1.length < 6) {
+        e.preventDefault();
+        alert('Senha deve ter pelo menos 6 caracteres');
+        return;
+    }
+
+    if (password1 !== password2) {
+        e.preventDefault();
+        alert('As senhas não coincidem');
+        return;
+    }
+});
+</script>
+{% endblock %}
