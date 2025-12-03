@@ -9,7 +9,7 @@
         
         {% if messages %}
             {% for message in messages %}
-                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-600{% else %}bg-green-600{% endif %} text-white">
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-600{% else %}bg-avai-blue{% endif %} text-white">
                     {{ message }}
                 </div>
             {% endfor %}
@@ -24,7 +24,7 @@
                        name="username" 
                        id="username"
                        required
-                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white w-full"
+                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-avai-blue bg-gray-700 text-white w-full"
                        placeholder="Escolha um nome de usuário">
             </div>
             
@@ -34,7 +34,7 @@
                        name="email" 
                        id="email"
                        required
-                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white w-full"
+                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-avai-blue bg-gray-700 text-white w-full"
                        placeholder="seu@email.com">
             </div>
             
@@ -44,7 +44,7 @@
                        name="first_name" 
                        id="first_name"
                        required
-                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white w-full"
+                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-avai-blue bg-gray-700 text-white w-full"
                        placeholder="Seu nome">
             </div>
             
@@ -54,7 +54,7 @@
                        name="last_name" 
                        id="last_name"
                        required
-                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white w-full"
+                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-avai-blue bg-gray-700 text-white w-full"
                        placeholder="Seu sobrenome">
             </div>
             
@@ -64,7 +64,7 @@
                        name="password1" 
                        id="password1"
                        required
-                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white w-full"
+                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-avai-blue bg-gray-700 text-white w-full"
                        placeholder="Escolha uma senha">
             </div>
             
@@ -74,12 +74,12 @@
                        name="password2" 
                        id="password2"
                        required
-                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white w-full"
+                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-avai-blue bg-gray-700 text-white w-full"
                        placeholder="Confirme sua senha">
             </div>
             
-            <button type="submit" 
-                    class="w-full bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-3 transition-colors font-semibold">
+            <button type="submit"
+                    class="w-full bg-avai-blue hover:bg-avai-blue-dark text-white rounded-lg px-4 py-3 transition-colors font-semibold">
                 Cadastrar
             </button>
         </form>
@@ -87,7 +87,7 @@
         <div class="mt-6 text-center">
             <p class="text-gray-300">
                 Já tem uma conta?
-                <a href="{% url 'accounts:login' %}" class="text-blue-400 hover:text-blue-300">
+                <a href="{% url 'accounts:login' %}" class="text-avai-blue-light hover:text-avai-blue">
                     Faça login
                 </a>
             </p>

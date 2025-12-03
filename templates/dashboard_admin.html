@@ -10,7 +10,7 @@
             <div class="p-6">
                 <h2 class="text-xl font-bold text-white mb-6">Menu Administrativo</h2>
                 <nav class="space-y-2">
-                    <a href="{% url 'dashboard' %}" class="flex items-center space-x-3 text-white bg-blue-600 px-4 py-3 rounded-lg transition-colors">
+                    <a href="{% url 'dashboard' %}" class="flex items-center space-x-3 text-white bg-avai-blue px-4 py-3 rounded-lg transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                         </svg>
@@ -69,19 +69,19 @@
 
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-gray-800 rounded-lg p-6 border-l-4 border-blue-600">
+            <div class="bg-gray-800 rounded-lg p-6 border-l-4 border-avai-blue">
                 <div class="text-gray-400 text-sm mb-2">Votações Ativas</div>
                 <div class="text-3xl font-bold text-white">{{ active_votings_count }}</div>
             </div>
-            <div class="bg-gray-800 rounded-lg p-6 border-l-4 border-green-600">
+            <div class="bg-gray-800 rounded-lg p-6 border-l-4 border-avai-blue-light">
                 <div class="text-gray-400 text-sm mb-2">Seus Votos</div>
                 <div class="text-3xl font-bold text-white">{{ user_votes_count }}</div>
             </div>
-            <div class="bg-gray-800 rounded-lg p-6 border-l-4 border-purple-600">
+            <div class="bg-gray-800 rounded-lg p-6 border-l-4 border-avai-blue-dark">
                 <div class="text-gray-400 text-sm mb-2">Presenças</div>
                 <div class="text-3xl font-bold text-white">{{ presences_count }}</div>
             </div>
-            <div class="bg-gray-800 rounded-lg p-6 border-l-4 border-yellow-600">
+            <div class="bg-gray-800 rounded-lg p-6 border-l-4 border-avai-blue-darker">
                 <div class="text-gray-400 text-sm mb-2">Total de Votações</div>
                 <div class="text-3xl font-bold text-white">{{ total_votings_count }}</div>
             </div>
@@ -123,8 +123,8 @@
                         </div>
                     </div>
                     <div class="flex space-x-2">
-                        <a href="{% url 'business:voting_detail' voting.pk %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">Ver Detalhes</a>
-                        <a href="{% url 'business:voting_results' voting.pk %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm">Resultados</a>
+                        <a href="{% url 'business:voting_detail' voting.pk %}" class="bg-avai-blue hover:bg-avai-blue-dark text-white px-4 py-2 rounded text-sm">Ver Detalhes</a>
+                        <a href="{% url 'business:voting_results' voting.pk %}" class="bg-avai-blue-light hover:bg-avai-blue text-white px-4 py-2 rounded text-sm">Resultados</a>
                     </div>
                 </div>
                 {% endfor %}

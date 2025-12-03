@@ -21,13 +21,13 @@
 
         <!-- Statistics Cards -->
         <div class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
-            <div class='bg-gray-800 rounded-lg p-6 shadow-lg border-l-4 border-avai-green'>
+            <div class='bg-gray-800 rounded-lg p-6 shadow-lg border-l-4 border-avai-blue'>
                 <div class='flex items-center justify-between'>
                     <div>
                         <p class='text-gray-400 text-sm'>Total de Presenças</p>
                         <p class='text-3xl font-bold text-white mt-2'>{{ total_presences }}</p>
                     </div>
-                    <div class='bg-avai-green rounded-full p-3'>
+                    <div class='bg-avai-blue rounded-full p-3'>
                         <svg class='w-6 h-6 text-gray-900' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                             <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7'></path>
                         </svg>
@@ -55,7 +55,7 @@
                         <p class='text-gray-400 text-sm'>Reuniões Registradas</p>
                         <p class='text-3xl font-bold text-white mt-2'>{{ unique_dates }}</p>
                     </div>
-                    <div class='bg-blue-600 rounded-full p-3'>
+                    <div class='bg-avai-blue rounded-full p-3'>
                         <svg class='w-6 h-6 text-white' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                             <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'></path>
                         </svg>
@@ -75,7 +75,7 @@
                         name='start_date' 
                         id='start_date'
                         value='{{ request.GET.start_date }}'
-                        class='w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500'
+                        class='w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-avai-blue'
                     >
                 </div>
                 <div>
@@ -85,11 +85,11 @@
                         name='end_date' 
                         id='end_date'
                         value='{{ request.GET.end_date }}'
-                        class='w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500'
+                        class='w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-avai-blue'
                     >
                 </div>
                 <div class='flex items-end'>
-                    <button type='submit' class='w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition duration-200 font-semibold'>
+                    <button type='submit' class='w-full bg-avai-blue hover:bg-avai-blue-dark text-white py-2 rounded-lg transition duration-200 font-semibold'>
                         Filtrar
                     </button>
                 </div>
@@ -114,7 +114,7 @@
                         <tr class='hover:bg-gray-700 transition'>
                             <td class='px-6 py-4 whitespace-nowrap'>
                                 <div class='flex items-center'>
-                                    <div class='bg-blue-600 rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-3'>
+                                    <div class='bg-avai-blue rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-3'>
                                         {{ presence.user.username.0|upper }}
                                     </div>
                                     <div class='text-sm text-white'>@{{ presence.user.username }}</div>
@@ -128,7 +128,7 @@
                             </td>
                             <td class='px-6 py-4 whitespace-nowrap'>
                                 {% if presence.present %}
-                                <span class='bg-avai-green text-gray-900 text-xs font-semibold px-2 py-1 rounded-full'>
+                                <span class='bg-avai-blue text-gray-900 text-xs font-semibold px-2 py-1 rounded-full'>
                                     Presente
                                 </span>
                                 {% else %}

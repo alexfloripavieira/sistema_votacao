@@ -33,7 +33,7 @@
                         id='id_title' 
                         required
                         maxlength='200'
-                        class='w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                        class='w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-avai-blue focus:border-transparent'
                         placeholder='Ex: Votação para escolha do uniforme 2025'
                     >
                 </div>
@@ -47,7 +47,7 @@
                         name='description' 
                         id='id_description' 
                         rows='4'
-                        class='w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                        class='w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-avai-blue focus:border-transparent'
                         placeholder='Descreva os detalhes da votação...'
                     ></textarea>
                 </div>
@@ -63,7 +63,7 @@
                             name='start_date' 
                             id='id_start_date' 
                             required
-                            class='w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                            class='w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-avai-blue focus:border-transparent'
                         >
                     </div>
                     <div>
@@ -75,7 +75,7 @@
                             name='end_date' 
                             id='id_end_date' 
                             required
-                            class='w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                            class='w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-avai-blue focus:border-transparent'
                         >
                     </div>
                 </div>
@@ -88,7 +88,7 @@
                             name='requires_presence' 
                             id='id_requires_presence' 
                             checked
-                            class='w-5 h-5 text-avai-green focus:ring-avai-green focus:ring-2 rounded'
+                            class='w-5 h-5 text-avai-blue focus:ring-avai-blue focus:ring-2 rounded'
                         >
                         <label for='id_requires_presence' class='ml-3 text-gray-300'>
                             Requer presença marcada para votar
@@ -100,7 +100,7 @@
                             name='is_active' 
                             id='id_is_active' 
                             checked
-                            class='w-5 h-5 text-avai-green focus:ring-avai-green focus:ring-2 rounded'
+                            class='w-5 h-5 text-avai-blue focus:ring-avai-blue focus:ring-2 rounded'
                         >
                         <label for='id_is_active' class='ml-3 text-gray-300'>
                             Votação ativa
@@ -115,7 +115,7 @@
                         <button 
                             type='button' 
                             id='addOptionBtn'
-                            class='bg-avai-green hover:bg-green-600 text-gray-900 px-4 py-2 rounded-lg transition duration-200 font-semibold text-sm'
+                            class='bg-avai-blue hover:bg-avai-blue text-gray-900 px-4 py-2 rounded-lg transition duration-200 font-semibold text-sm'
                         >
                             + Adicionar Opção
                         </button>
@@ -131,14 +131,14 @@
                                     value='A'
                                     maxlength='1'
                                     required
-                                    class='w-16 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white text-center font-bold focus:ring-2 focus:ring-blue-500'
+                                    class='w-16 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white text-center font-bold focus:ring-2 focus:ring-avai-blue'
                                     placeholder='A'
                                 >
                                 <input 
                                     type='text' 
                                     name='option_texts[]' 
                                     required
-                                    class='flex-1 bg-gray-600 border border-gray-500 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500'
+                                    class='flex-1 bg-gray-600 border border-gray-500 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-avai-blue'
                                     placeholder='Texto da opção A'
                                 >
                                 <button 
@@ -162,14 +162,14 @@
                                     value='B'
                                     maxlength='1'
                                     required
-                                    class='w-16 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white text-center font-bold focus:ring-2 focus:ring-blue-500'
+                                    class='w-16 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white text-center font-bold focus:ring-2 focus:ring-avai-blue'
                                     placeholder='B'
                                 >
                                 <input 
                                     type='text' 
                                     name='option_texts[]' 
                                     required
-                                    class='flex-1 bg-gray-600 border border-gray-500 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500'
+                                    class='flex-1 bg-gray-600 border border-gray-500 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-avai-blue'
                                     placeholder='Texto da opção B'
                                 >
                                 <button 
@@ -193,7 +193,7 @@
                     <a href='{% url "business:voting_list" %}' class='bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition duration-200 font-semibold'>
                         Cancelar
                     </a>
-                    <button type='submit' class='bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg transition duration-200 font-semibold'>
+                    <button type='submit' class='bg-avai-blue hover:bg-avai-blue-dark text-white px-8 py-3 rounded-lg transition duration-200 font-semibold'>
                         Criar Votação
                     </button>
                 </div>
@@ -225,14 +225,14 @@ document.getElementById('addOptionBtn').addEventListener('click', function() {
                 value='${letters[optionCount]}'
                 maxlength='1'
                 required
-                class='w-16 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white text-center font-bold focus:ring-2 focus:ring-blue-500'
+                class='w-16 bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white text-center font-bold focus:ring-2 focus:ring-avai-blue'
                 placeholder='${letters[optionCount]}'
             >
             <input 
                 type='text' 
                 name='option_texts[]' 
                 required
-                class='flex-1 bg-gray-600 border border-gray-500 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-blue-500'
+                class='flex-1 bg-gray-600 border border-gray-500 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-avai-blue'
                 placeholder='Texto da opção ${letters[optionCount]}'
             >
             <button 

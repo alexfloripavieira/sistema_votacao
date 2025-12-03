@@ -139,11 +139,41 @@ class ExampleModel(models.Model):
 - Exemplo: `TogglePresenceView` retorna `{'success': True, 'message': '...'}`
 
 ## Design System (TailwindCSS)
-- **Cores**: `bg-gray-900`, `bg-blue-600`, `text-white`, `text-gray-300`
-- **Verde Avaí**: `#22c55e` (usado em destaques)
+
+### Paleta de Cores Oficial do Avaí FC
+- **Azul Avaí**: `#006EB6` - Cor principal (botões primários, destaques, links)
+- **Azul Avaí Dark**: `#005490` - Hover de botões primários
+- **Azul Avaí Darker**: `#003d6b` - Backgrounds escuros e elementos secundários
+- **Azul Avaí Light**: `#0088E0` - Botões secundários, elementos de destaque alternativos
+- **Branco Avaí**: `#FFFFFF` - Textos em fundos escuros
+
+### Classes Tailwind Customizadas
+```javascript
+// Configuração no base.html
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                'avai-blue': '#006EB6',
+                'avai-blue-dark': '#005490',
+                'avai-blue-darker': '#003d6b',
+                'avai-blue-light': '#0088E0',
+                'avai-white': '#FFFFFF',
+            }
+        }
+    }
+}
+```
+
+### Uso das Cores
+- **Backgrounds**: `bg-gray-900`, `bg-gray-800` (fundos principais), `bg-avai-blue` (destaques)
+- **Textos**: `text-white`, `text-gray-300`, `text-avai-blue-light`
 - **Gradiente**: `bg-gradient-to-br from-gray-900 to-gray-800`
-- **Botões**: `bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2`
-- **Inputs**: `border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 bg-gray-800 text-white`
+- **Botões Primários**: `bg-avai-blue hover:bg-avai-blue-dark text-white rounded-lg px-4 py-2`
+- **Botões Secundários**: `bg-avai-blue-light hover:bg-avai-blue text-white rounded-lg px-4 py-2`
+- **Inputs**: `border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-avai-blue bg-gray-700 text-white`
+- **Bordas de destaque**: `border-avai-blue` (elementos selecionados)
+- **Status**: Manter `bg-red-600` (erros), `bg-yellow-600` (avisos)
 
 ## Configurações Importantes (settings.py)
 

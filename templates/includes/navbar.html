@@ -3,7 +3,7 @@
         <div class="flex justify-between items-center h-16">
             <!-- Logo / Brand -->
             <div class="flex items-center">
-                <a href="{% url 'home' %}" class="text-2xl font-bold text-white hover:text-avai-green transition-colors">
+                <a href="{% url 'home' %}" class="text-2xl font-bold text-white hover:text-avai-blue-light transition-colors">
                     Sistema de Votação
                 </a>
             </div>
@@ -31,10 +31,10 @@
                         Sair
                     </a>
                 {% else %}
-                    <a href="{% url 'accounts:login' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                    <a href="{% url 'accounts:login' %}" class="bg-avai-blue hover:bg-avai-blue-dark text-white px-4 py-2 rounded-lg transition-colors">
                         Login
                     </a>
-                    <a href="{% url 'accounts:register' %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+                    <a href="{% url 'accounts:register' %}" class="bg-avai-blue-light hover:bg-avai-blue text-white px-4 py-2 rounded-lg transition-colors">
                         Cadastre-se
                     </a>
                 {% endif %}
@@ -73,10 +73,10 @@
                     Sair
                 </a>
             {% else %}
-                <a href="{% url 'accounts:login' %}" class="block bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded transition-colors mb-2">
+                <a href="{% url 'accounts:login' %}" class="block bg-avai-blue hover:bg-avai-blue-dark text-white px-3 py-2 rounded transition-colors mb-2">
                     Login
                 </a>
-                <a href="{% url 'accounts:register' %}" class="block bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded transition-colors">
+                <a href="{% url 'accounts:register' %}" class="block bg-avai-blue-light hover:bg-avai-blue text-white px-3 py-2 rounded transition-colors">
                     Cadastre-se
                 </a>
             {% endif %}

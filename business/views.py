@@ -14,29 +14,37 @@ from django.http import JsonResponse
 from .models import Meeting, Presence, Voting, VotingOption, Vote
 
 
-class MarkPresenceView(LoginRequiredMixin, View):
-    '''View para marcar presença do usuário na reunião de hoje'''
-    
+class MarkPresenceView(LoginRequiredMixin, UserPassesTestMixin, View):
+    '''View para marcar presença do usuário na reunião de hoje (apenas admin)'''
+
+    def test_func(self):
+        return self.request.user.is_staff or self.request.user.is_superuser
+
     def post(self, request, *args, **kwargs):
-        today = timezone.now().date()
-        
-        # Verifica se já marcou presença hoje
+        # Busca reunião ativa
+        active_meeting = Meeting.objects.filter(is_active=True).first()
+
+        if not active_meeting:
+            messages.error(request, 'Não há reunião ativa no momento. Aguarde o início de uma reunião.')
+            return redirect('business:presence_list')
+
+        # Verifica se já marcou presença na reunião ativa
         presence, created = Presence.objects.get_or_create(
             user=request.user,
-            meeting__meeting_date=today,
+            meeting=active_meeting,
             defaults={'present': True}
         )
-        
+
         if created:
             messages.success(request, 'Presença marcada com sucesso!')
         else:
             if presence.present:
-                messages.info(request, 'Você já marcou presença hoje.')
+                messages.info(request, 'Você já marcou presença nesta reunião.')
             else:
                 presence.present = True
                 presence.save()
                 messages.success(request, 'Presença marcada com sucesso!')
-        
+
         return redirect('business:presence_list')
 
 
@@ -151,15 +159,19 @@ class VotingDetailView(LoginRequiredMixin, DetailView):
         
         # Check if voting is open
         context['is_open'] = voting.is_open()
-        
+
         # Check if user has presence (if required)
         if voting.requires_presence:
-            today = timezone.now().date()
-            context['has_presence'] = Presence.objects.filter(
-                user=self.request.user,
-                meeting__meeting_date=today,
-                present=True
-            ).exists()
+            # Verifica presença na reunião ativa
+            active_meeting = Meeting.objects.filter(is_active=True).first()
+            if active_meeting:
+                context['has_presence'] = Presence.objects.filter(
+                    user=self.request.user,
+                    meeting=active_meeting,
+                    present=True
+                ).exists()
+            else:
+                context['has_presence'] = False
         else:
             context['has_presence'] = True
         
@@ -190,17 +202,25 @@ class CastVoteView(LoginRequiredMixin, View):
         
         # Check if requires presence
         if voting.requires_presence:
-            today = timezone.now().date()
+            # Verifica presença na reunião ativa
+            active_meeting = Meeting.objects.filter(is_active=True).first()
+            if not active_meeting:
+                messages.error(
+                    request,
+                    'Não há reunião ativa no momento. Aguarde o início de uma reunião.'
+                )
+                return redirect('business:voting_detail', pk=voting.pk)
+
             has_presence = Presence.objects.filter(
                 user=request.user,
-                meeting__meeting_date=today,
+                meeting=active_meeting,
                 present=True
             ).exists()
-            
+
             if not has_presence:
                 messages.error(
-                    request, 
-                    'Você precisa marcar presença antes de votar.'
+                    request,
+                    'Você precisa ter sua presença confirmada antes de votar.'
                 )
                 return redirect('business:voting_detail', pk=voting.pk)
         
@@ -229,18 +249,18 @@ class VotingCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     template_name = 'business/voting_create.html'
     fields = ['title', 'description', 'start_date', 'end_date', 'requires_presence', 'is_active']
     success_url = reverse_lazy('business:voting_list')
-    
+
     def test_func(self):
         return self.request.user.is_staff
-    
+
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         response = super().form_valid(form)
-        
+
         # Create voting options from POST data
         option_letters = self.request.POST.getlist('option_letters[]')
         option_texts = self.request.POST.getlist('option_texts[]')
-        
+
         for letter, text in zip(option_letters, option_texts):
             if letter and text:
                 VotingOption.objects.create(
@@ -248,9 +268,35 @@ class VotingCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
                     option_letter=letter.upper(),
                     option_text=text
                 )
-        
+
         messages.success(self.request, 'Votação criada com sucesso!')
         return response
+
+
+class CloseVotingView(LoginRequiredMixin, UserPassesTestMixin, View):
+    '''View para encerrar votação manualmente (apenas admin)'''
+
+    def test_func(self):
+        return self.request.user.is_staff or self.request.user.is_superuser
+
+    def post(self, request, pk):
+        try:
+            voting = get_object_or_404(Voting, pk=pk)
+
+            if not voting.is_active:
+                messages.warning(request, f'A votação "{voting.title}" já está encerrada.')
+                return redirect('business:voting_detail', pk=voting.pk)
+
+            # Encerra a votação definindo is_active como False
+            voting.is_active = False
+            voting.save()
+
+            messages.success(request, f'Votação "{voting.title}" encerrada com sucesso!')
+            return redirect('business:voting_detail', pk=voting.pk)
+
+        except Exception as e:
+            messages.error(request, f'Erro ao encerrar votação: {str(e)}')
+            return redirect('business:voting_list')
 
 
 class VotingResultsView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
@@ -370,9 +416,9 @@ class VotingReportView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         if voting.requires_presence:
             voting_date = voting.start_date.date()
             context['eligible_voters'] = Presence.objects.filter(
-                meeting_date=voting_date,
+                meeting__meeting_date=voting_date,
                 present=True
-            ).select_related('user').count()
+            ).select_related('user', 'meeting').count()
         
         return context
 

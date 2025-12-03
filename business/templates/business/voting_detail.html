@@ -20,7 +20,7 @@
             <div class='flex items-start justify-between mb-4'>
                 <h1 class='text-3xl font-bold text-white flex-1'>{{ voting.title }}</h1>
                 {% if has_voted %}
-                <span class='bg-avai-green text-gray-900 text-sm font-semibold px-3 py-1 rounded-full ml-4'>
+                <span class='bg-avai-blue text-gray-900 text-sm font-semibold px-3 py-1 rounded-full ml-4'>
                     ✓ Você já votou
                 </span>
                 {% endif %}
@@ -33,16 +33,16 @@
             <!-- Voting Info -->
             <div class='grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 pb-6 border-b border-gray-700'>
                 <div class='text-center'>
-                    <div class='text-3xl font-bold text-avai-green mb-1'>{{ voting.total_votes }}</div>
+                    <div class='text-3xl font-bold text-avai-blue mb-1'>{{ voting.total_votes }}</div>
                     <div class='text-sm text-gray-400'>Total de Votos</div>
                 </div>
                 <div class='text-center'>
-                    <div class='text-3xl font-bold text-blue-400 mb-1'>{{ options|length }}</div>
+                    <div class='text-3xl font-bold text-avai-blue-light mb-1'>{{ options|length }}</div>
                     <div class='text-sm text-gray-400'>Opções</div>
                 </div>
                 <div class='text-center'>
                     {% if is_open %}
-                    <div class='text-3xl font-bold text-avai-green mb-1'>●</div>
+                    <div class='text-3xl font-bold text-avai-blue mb-1'>●</div>
                     <div class='text-sm text-gray-400'>Votação Aberta</div>
                     {% else %}
                     <div class='text-3xl font-bold text-red-400 mb-1'>●</div>
@@ -54,7 +54,7 @@
             <!-- Dates -->
             <div class='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div class='flex items-center text-sm text-gray-400'>
-                    <svg class='w-5 h-5 mr-2 text-avai-green' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <svg class='w-5 h-5 mr-2 text-avai-blue' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                         <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'></path>
                     </svg>
                     Início: {{ voting.start_date|date:'d/m/Y às H:i' }}
@@ -77,8 +77,8 @@
                 <p class='text-red-400 text-center font-semibold'>Esta votação está encerrada.</p>
             </div>
             {% elif has_voted %}
-            <div class='bg-avai-green/20 border border-avai-green rounded-lg p-4 mb-6'>
-                <p class='text-avai-green text-center font-semibold'>
+            <div class='bg-avai-blue/20 border border-avai-blue rounded-lg p-4 mb-6'>
+                <p class='text-avai-blue text-center font-semibold'>
                     Você votou na opção: {{ user_vote.option.option_letter }}. {{ user_vote.option.option_text }}
                 </p>
             </div>
@@ -95,13 +95,13 @@
                 {% csrf_token %}
                 <div class='space-y-4'>
                     {% for option in options %}
-                    <div class='voting-option {% if has_voted and user_vote.option.id == option.id %}border-avai-green{% else %}border-gray-700{% endif %} border-2 rounded-lg p-6 hover:border-blue-500 transition duration-200 cursor-pointer {% if has_voted or not is_open or voting.requires_presence and not has_presence %}opacity-50 cursor-not-allowed{% endif %}'>
+                    <div class='voting-option {% if has_voted and user_vote.option.id == option.id %}border-avai-blue{% else %}border-gray-700{% endif %} border-2 rounded-lg p-6 hover:border-avai-blue-light transition duration-200 cursor-pointer {% if has_voted or not is_open or voting.requires_presence and not has_presence %}opacity-50 cursor-not-allowed{% endif %}'>
                         <label class='flex items-center cursor-pointer {% if has_voted or not is_open or voting.requires_presence and not has_presence %}cursor-not-allowed{% endif %}'>
                             <input 
                                 type='radio' 
                                 name='option_id' 
                                 value='{{ option.id }}' 
-                                class='w-5 h-5 text-avai-green focus:ring-avai-green focus:ring-2'
+                                class='w-5 h-5 text-avai-blue focus:ring-avai-blue focus:ring-2'
                                 {% if has_voted or not is_open or voting.requires_presence and not has_presence %}disabled{% endif %}
                                 {% if has_voted and user_vote.option.id == option.id %}checked{% endif %}
                             >
@@ -120,7 +120,7 @@
                                 <div class='mt-2'>
                                     <div class='bg-gray-700 rounded-full h-2 overflow-hidden'>
                                         {% widthratio option.votes_count voting.total_votes 100 as percentage %}
-                                        <div class='bg-avai-green h-full' style='width: {{ percentage }}%'></div>
+                                        <div class='bg-avai-blue h-full' style='width: {{ percentage }}%'></div>
                                     </div>
                                     <div class='text-xs text-gray-400 mt-1'>{{ percentage }}%</div>
                                 </div>
@@ -133,19 +133,28 @@
 
                 {% if not has_voted and is_open and has_presence %}
                 <div class='mt-8 flex justify-center'>
-                    <button type='submit' class='bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg transition duration-200 font-bold text-lg'>
+                    <button type='submit' class='bg-avai-blue hover:bg-avai-blue-dark text-white px-8 py-4 rounded-lg transition duration-200 font-bold text-lg'>
                         Confirmar Voto
                     </button>
                 </div>
                 {% endif %}
             </form>
 
-            <!-- View Results Button (Only for Staff) -->
+            <!-- Admin Actions (Only for Staff) -->
             {% if user.is_staff %}
-            <div class='mt-6 text-center'>
+            <div class='mt-6 text-center space-x-4'>
                 <a href='{% url "business:voting_results" voting.pk %}' class='inline-block bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition duration-200 font-semibold'>
                     Ver Resultados Detalhados
                 </a>
+
+                {% if voting.is_active %}
+                <form method='post' action='{% url "business:close_voting" voting.pk %}' class='inline-block' onsubmit='return confirm("Tem certeza que deseja encerrar esta votação? Esta ação não pode ser desfeita.");'>
+                    {% csrf_token %}
+                    <button type='submit' class='bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition duration-200 font-semibold'>
+                        Encerrar Votação
+                    </button>
+                </form>
+                {% endif %}
             </div>
             {% endif %}
         </div>

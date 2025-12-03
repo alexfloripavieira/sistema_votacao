@@ -21,12 +21,12 @@
                 <form method="post" action="{% url 'business:mark_presence' %}">
                     {% csrf_token %}
                     <button type="submit" 
-                            class="bg-green-600 hover:bg-green-700 text-white rounded-lg px-6 py-2 transition-colors font-semibold">
+                            class="bg-avai-blue hover:bg-avai-blue-dark text-white rounded-lg px-6 py-2 transition-colors font-semibold">
                         Marcar Presença
                     </button>
                 </form>
                 {% else %}
-                <div class="bg-green-600 text-white rounded-lg px-6 py-2 flex items-center gap-2">
+                <div class="bg-avai-blue text-white rounded-lg px-6 py-2 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
@@ -53,7 +53,7 @@
                         <tr class="border-b border-gray-700 hover:bg-gray-700 transition-colors">
                             <td class="px-6 py-4 text-white">
                                 <div class="flex items-center gap-3">
-                                    <div class="bg-green-600 rounded-full w-10 h-10 flex items-center justify-center font-semibold">
+                                    <div class="bg-avai-blue rounded-full w-10 h-10 flex items-center justify-center font-semibold">
                                         {{ presence.user.username|slice:":1"|upper }}
                                     </div>
                                     <span>{{ presence.user.username }}</span>

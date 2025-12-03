@@ -47,9 +47,9 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             """
             INSERT INTO business_meeting (title, meeting_date, is_active, created_at, created_by_id)
-            SELECT 'Reunião Padrão - Migração', '2024-01-01', 0, '2024-01-01 00:00:00', id
+            SELECT 'Reunião Padrão - Migração', '2024-01-01', FALSE, '2024-01-01 00:00:00', id
             FROM auth_user
-            WHERE is_superuser = 1
+            WHERE is_superuser = TRUE
             LIMIT 1
             """,
             reverse_sql="DELETE FROM business_meeting WHERE title = 'Reunião Padrão - Migração'"

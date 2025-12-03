@@ -13,7 +13,7 @@
             </div>
             
             {% if user.is_staff %}
-            <a href='{% url "business:voting_create" %}' class='bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition duration-200 font-semibold'>
+            <a href='{% url "business:voting_create" %}' class='bg-avai-blue hover:bg-avai-blue-dark text-white px-6 py-3 rounded-lg transition duration-200 font-semibold'>
                 + Nova Votação
             </a>
             {% endif %}
@@ -29,7 +29,7 @@
                     <div class='flex items-start justify-between mb-4'>
                         <h3 class='text-xl font-bold text-white flex-1'>{{ voting.title }}</h3>
                         {% if voting.id in user_votes %}
-                        <span class='bg-avai-green text-gray-900 text-xs font-semibold px-2 py-1 rounded-full ml-2'>
+                        <span class='bg-avai-blue text-gray-900 text-xs font-semibold px-2 py-1 rounded-full ml-2'>
                             ✓ Votado
                         </span>
                         {% endif %}
@@ -44,11 +44,11 @@
                     <div class='flex items-center justify-between mb-4 pb-4 border-b border-gray-700'>
                         <div class='flex items-center space-x-4'>
                             <div class='text-center'>
-                                <div class='text-2xl font-bold text-avai-green'>{{ voting.total_votes }}</div>
+                                <div class='text-2xl font-bold text-avai-blue'>{{ voting.total_votes }}</div>
                                 <div class='text-xs text-gray-400'>Votos</div>
                             </div>
                             <div class='text-center'>
-                                <div class='text-2xl font-bold text-blue-400'>{{ voting.options.count }}</div>
+                                <div class='text-2xl font-bold text-avai-blue-light'>{{ voting.options.count }}</div>
                                 <div class='text-xs text-gray-400'>Opções</div>
                             </div>
                         </div>
@@ -72,7 +72,7 @@
 
                     <!-- Action Button -->
                     {% if user.is_staff %}
-                    <a href='{% url "business:voting_detail" voting.pk %}' class='block w-full text-center bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition duration-200 font-semibold'>
+                    <a href='{% url "business:voting_detail" voting.pk %}' class='block w-full text-center bg-avai-blue hover:bg-avai-blue-dark text-white py-3 rounded-lg transition duration-200 font-semibold'>
                         {% if voting.id in user_votes %}
                         Ver Resultados
                         {% else %}
@@ -85,7 +85,7 @@
                         ✓ Já Votou
                     </button>
                     {% else %}
-                    <a href='{% url "business:voting_detail" voting.pk %}' class='block w-full text-center bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition duration-200 font-semibold'>
+                    <a href='{% url "business:voting_detail" voting.pk %}' class='block w-full text-center bg-avai-blue hover:bg-avai-blue-dark text-white py-3 rounded-lg transition duration-200 font-semibold'>
                         Votar Agora
                     </a>
                     {% endif %}
@@ -127,7 +127,7 @@
             <h3 class='text-xl font-semibold text-gray-300 mb-2'>Nenhuma Votação Ativa</h3>
             <p class='text-gray-400 mb-6'>Não há votações abertas no momento.</p>
             {% if user.is_staff %}
-            <a href='{% url "business:voting_create" %}' class='inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition duration-200 font-semibold'>
+            <a href='{% url "business:voting_create" %}' class='inline-block bg-avai-blue hover:bg-avai-blue-dark text-white px-6 py-3 rounded-lg transition duration-200 font-semibold'>
                 Criar Nova Votação
             </a>
             {% endif %}

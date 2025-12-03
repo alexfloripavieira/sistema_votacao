@@ -14,14 +14,14 @@
             
             <div class="flex gap-4">
                 <a href="{% url 'business:today_presence' %}" 
-                   class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 transition-colors">
+                   class="bg-avai-blue hover:bg-avai-blue-dark text-white rounded-lg px-4 py-2 transition-colors">
                     Ver Hoje
                 </a>
                 {% if not has_marked_today %}
                 <form method="post" action="{% url 'business:mark_presence' %}">
                     {% csrf_token %}
                     <button type="submit" 
-                            class="bg-green-600 hover:bg-green-700 text-white rounded-lg px-6 py-2 transition-colors font-semibold">
+                            class="bg-avai-blue hover:bg-avai-blue-dark text-white rounded-lg px-6 py-2 transition-colors font-semibold">
                         Marcar Presença
                     </button>
                 </form>
@@ -38,11 +38,11 @@
                            name="date" 
                            id="date"
                            value="{{ request.GET.date }}"
-                           class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white w-full">
+                           class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-avai-blue bg-gray-700 text-white w-full">
                 </div>
                 <div class="flex items-end gap-2">
                     <button type="submit" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-2 transition-colors">
+                            class="bg-avai-blue hover:bg-avai-blue-dark text-white rounded-lg px-6 py-2 transition-colors">
                         Filtrar
                     </button>
                     <a href="{% url 'business:presence_list' %}" 
@@ -75,7 +75,7 @@
                             </td>
                             <td class="px-6 py-4 text-white">
                                 <div class="flex items-center gap-3">
-                                    <div class="bg-blue-600 rounded-full w-10 h-10 flex items-center justify-center font-semibold">
+                                    <div class="bg-avai-blue rounded-full w-10 h-10 flex items-center justify-center font-semibold">
                                         {{ presence.user.username|slice:":1"|upper }}
                                     </div>
                                     <span>{{ presence.user.username }}</span>
@@ -86,7 +86,7 @@
                             </td>
                             <td class="px-6 py-4">
                                 {% if presence.present %}
-                                <span class="bg-green-600 text-white px-3 py-1 rounded-full text-sm">
+                                <span class="bg-avai-blue text-white px-3 py-1 rounded-full text-sm">
                                     Presente
                                 </span>
                                 {% else %}

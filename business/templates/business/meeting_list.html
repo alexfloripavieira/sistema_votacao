@@ -25,7 +25,7 @@
                         </div>
                         <div class="flex items-center gap-4">
                             {% if meeting.is_active %}
-                            <span class="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                            <span class="bg-avai-blue text-white px-3 py-1 rounded-full text-sm font-semibold">
                                 Ativa
                             </span>
                             {% else %}
@@ -42,11 +42,11 @@
                     <!-- Meeting Stats -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <div class="bg-gray-700 rounded-lg p-4">
-                            <div class="text-2xl font-bold text-blue-400">{{ meeting.presences.count }}</div>
+                            <div class="text-2xl font-bold text-avai-blue-light">{{ meeting.presences.count }}</div>
                             <div class="text-sm text-gray-400">Total de Presenças</div>
                         </div>
                         <div class="bg-gray-700 rounded-lg p-4">
-                            <div class="text-2xl font-bold text-green-400">{{ meeting.total_presences_count }}</div>
+                            <div class="text-2xl font-bold text-avai-blue-light">{{ meeting.total_presences_count }}</div>
                             <div class="text-sm text-gray-400">Presentes</div>
                         </div>
                         <div class="bg-gray-700 rounded-lg p-4">
@@ -98,7 +98,7 @@
             </svg>
             <h3 class="text-xl font-semibold text-gray-300 mb-2">Nenhuma Reunião Encontrada</h3>
             <p class="text-gray-400 mb-6">Não há reuniões cadastradas no sistema.</p>
-            <a href="{% url 'business:admin_dashboard' %}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition duration-200 font-semibold">
+            <a href="{% url 'business:admin_dashboard' %}" class="inline-block bg-avai-blue hover:bg-avai-blue-dark text-white px-6 py-3 rounded-lg transition duration-200 font-semibold">
                 Voltar ao Dashboard
             </a>
         </div>

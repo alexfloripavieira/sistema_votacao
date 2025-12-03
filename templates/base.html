@@ -10,8 +10,11 @@
             theme: {
                 extend: {
                     colors: {
-                        'avai-green': '#22c55e',
-                        'blue-primary': '#1e3a8a',
+                        'avai-blue': '#006EB6',
+                        'avai-blue-dark': '#005490',
+                        'avai-blue-darker': '#003d6b',
+                        'avai-blue-light': '#0088E0',
+                        'avai-white': '#FFFFFF',
                     }
                 }
             }
@@ -49,7 +52,7 @@
     {% if messages %}
         <div class="container mx-auto px-4 mt-4">
             {% for message in messages %}
-                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-600{% elif message.tags == 'success' %}bg-green-600{% elif message.tags == 'warning' %}bg-yellow-600{% else %}bg-blue-600{% endif %} text-white shadow-lg">
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-600{% elif message.tags == 'success' %}bg-avai-blue{% elif message.tags == 'warning' %}bg-yellow-600{% else %}bg-avai-blue{% endif %} text-white shadow-lg">
                     {{ message }}
                 </div>
             {% endfor %}

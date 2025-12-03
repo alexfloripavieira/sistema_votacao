@@ -9,7 +9,7 @@
         
         {% if messages %}
             {% for message in messages %}
-                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-600{% else %}bg-blue-600{% endif %} text-white">
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-600{% else %}bg-avai-blue{% endif %} text-white">
                     {{ message }}
                 </div>
             {% endfor %}
@@ -24,7 +24,7 @@
                        name="username" 
                        id="username"
                        required
-                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white w-full"
+                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-avai-blue bg-gray-700 text-white w-full"
                        placeholder="Digite seu nome de usuário">
             </div>
             
@@ -34,20 +34,20 @@
                        name="password" 
                        id="password"
                        required
-                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white w-full"
+                       class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-avai-blue bg-gray-700 text-white w-full"
                        placeholder="Digite sua senha">
             </div>
             
-            <button type="submit" 
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-3 transition-colors font-semibold">
+            <button type="submit"
+                    class="w-full bg-avai-blue hover:bg-avai-blue-dark text-white rounded-lg px-4 py-3 transition-colors font-semibold">
                 Entrar
             </button>
         </form>
-        
+
         <div class="mt-6 text-center">
             <p class="text-gray-300">
-                Não tem uma conta? 
-                <a href="{% url 'accounts:register' %}" class="text-blue-400 hover:text-blue-300">
+                Não tem uma conta?
+                <a href="{% url 'accounts:register' %}" class="text-avai-blue-light hover:text-avai-blue">
                     Cadastre-se
                 </a>
             </p>

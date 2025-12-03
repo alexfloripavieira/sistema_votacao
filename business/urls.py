@@ -23,6 +23,7 @@ urlpatterns = [
     path('voting/<int:pk>/', views.VotingDetailView.as_view(), name='voting_detail'),
     path('voting/<int:pk>/vote/', views.CastVoteView.as_view(), name='cast_vote'),
     path('voting/<int:pk>/results/', views.VotingResultsView.as_view(), name='voting_results'),
+    path('voting/<int:pk>/close/', views.CloseVotingView.as_view(), name='close_voting'),
     path('voting/create/', views.VotingCreateView.as_view(), name='voting_create'),
     
     # Reports URLs
