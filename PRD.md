@@ -234,7 +234,8 @@ Como membro do Conselho Deliberativo, quero um sistema completo de votação par
 - [x] Relatórios
   - [x] Relatório de presença
   - [x] Relatório de votos por opção
-  - [ ] Export para PDF/Excel (futuro)
+  - [x] Export para PDF/Excel
+  - [x] Ordenação alfabética nas listas de conselheiros
 - [x] Dashboard administrativo
   - [x] Visão geral das votações
   - [x] Estatísticas básicas

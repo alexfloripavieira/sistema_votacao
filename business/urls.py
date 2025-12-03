@@ -28,7 +28,11 @@ urlpatterns = [
     
     # Reports URLs
     path('reports/presence/', views.PresenceReportView.as_view(), name='presence_report'),
+    path('reports/presence/export/excel/', views.ExportPresenceExcelView.as_view(), name='export_presence_excel'),
+    path('reports/presence/export/pdf/', views.ExportPresencePDFView.as_view(), name='export_presence_pdf'),
     path('reports/voting/<int:pk>/', views.VotingReportView.as_view(), name='voting_report'),
+    path('reports/voting/<int:pk>/export/excel/', views.ExportVotingExcelView.as_view(), name='export_voting_excel'),
+    path('reports/voting/<int:pk>/export/pdf/', views.ExportVotingPDFView.as_view(), name='export_voting_pdf'),
     
     # Admin Dashboard
     path('admin-dashboard/', views.AdminDashboardView.as_view(), name='admin_dashboard'),

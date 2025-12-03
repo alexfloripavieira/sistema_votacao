@@ -10,7 +10,15 @@ from django.db import transaction
 from django.core.cache import cache
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, PatternFill
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from .models import Meeting, Presence, Voting, VotingOption, Vote
 
 
@@ -347,17 +355,24 @@ class PresenceReportView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return self.request.user.is_staff
     
     def get_queryset(self):
-        queryset = Presence.objects.select_related('user').order_by('-meeting__meeting_date', 'user__username')
-        
+        queryset = Presence.objects.select_related('user', 'meeting')
+
         # Filter by date range if provided
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
-        
+
         if start_date:
             queryset = queryset.filter(meeting__meeting_date__gte=start_date)
         if end_date:
             queryset = queryset.filter(meeting__meeting_date__lte=end_date)
-        
+
+        # Apply ordering
+        order_by = self.request.GET.get('order_by', 'date')
+        if order_by == 'alphabetical':
+            queryset = queryset.order_by('user__first_name', 'user__last_name', 'user__username', '-meeting__meeting_date')
+        else:
+            queryset = queryset.order_by('-meeting__meeting_date', 'user__username')
+
         return queryset
     
     def get_context_data(self, **kwargs):
@@ -527,10 +542,10 @@ class MarkPresenceAdminView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 present=True
             ).values_list('user_id', flat=True)
 
-            context['meeting_presences'] = list(meeting_presences)
+            context['today_presences'] = list(meeting_presences)
             context['total_present'] = len(meeting_presences)
         else:
-            context['meeting_presences'] = []
+            context['today_presences'] = []
             context['total_present'] = 0
 
         context['search_query'] = self.request.GET.get('search', '')
@@ -564,10 +579,40 @@ class TogglePresenceView(LoginRequiredMixin, UserPassesTestMixin, View):
                 defaults={'present': True}
             )
 
-            # Toggle presence
-            if not created:
-                presence.present = not presence.present
-                presence.save()
+            # If presence was just created, it's already marked as present
+            if created:
+                return JsonResponse({
+                    'success': True,
+                    'present': True,
+                    'message': f'Presença de {user.get_full_name() or user.username} marcada com sucesso!'
+                })
+
+            # If presence already exists, check if trying to unmark (present -> absent)
+            if presence.present:
+                # Require admin password to unmark presence
+                admin_password = request.POST.get('admin_password')
+
+                if not admin_password:
+                    return JsonResponse({
+                        'success': False,
+                        'require_password': True,
+                        'message': 'Senha de administrador necessária para desmarcar presença.'
+                    }, status=403)
+
+                # Validate admin password
+                from django.contrib.auth import authenticate
+                admin_user = authenticate(username=request.user.username, password=admin_password)
+
+                if not admin_user or not (admin_user.is_staff or admin_user.is_superuser):
+                    return JsonResponse({
+                        'success': False,
+                        'require_password': True,
+                        'message': 'Senha inválida. Apenas administradores podem desmarcar presença.'
+                    }, status=403)
+
+            # Toggle presence (mark if absent, unmark if present with valid password)
+            presence.present = not presence.present
+            presence.save()
 
             return JsonResponse({
                 'success': True,
@@ -666,3 +711,364 @@ class MeetingListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             meeting.total_presences_count = meeting.presences.filter(present=True).count()
             meeting.absent_count = meeting.presences.filter(present=False).count()
         return context
+
+
+class ExportPresenceExcelView(LoginRequiredMixin, UserPassesTestMixin, View):
+    '''View para exportar relatório de presenças para Excel'''
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request, *args, **kwargs):
+        # Create workbook
+        wb = Workbook()
+        ws = wb.active
+        ws.title = 'Relatório de Presenças'
+
+        # Header styling
+        header_fill = PatternFill(start_color='006EB6', end_color='006EB6', fill_type='solid')
+        header_font = Font(bold=True, color='FFFFFF', size=12)
+        header_alignment = Alignment(horizontal='center', vertical='center')
+
+        # Title
+        ws.merge_cells('A1:E1')
+        ws['A1'] = 'Relatório de Presenças - Avaí FC'
+        ws['A1'].font = Font(bold=True, size=14, color='006EB6')
+        ws['A1'].alignment = Alignment(horizontal='center')
+
+        # Headers
+        headers = ['Data da Reunião', 'Conselheiro', 'Username', 'Status', 'Registrado em']
+        ws.append([])  # Empty row
+        ws.append(headers)
+
+        for cell in ws[3]:
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = header_alignment
+
+        # Get queryset with filters
+        queryset = Presence.objects.select_related('user', 'meeting')
+
+        # Apply filters
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+
+        if start_date:
+            queryset = queryset.filter(meeting__meeting_date__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(meeting__meeting_date__lte=end_date)
+
+        # Apply ordering
+        order_by = request.GET.get('order_by', 'date')
+        if order_by == 'alphabetical':
+            queryset = queryset.order_by('user__first_name', 'user__last_name', 'user__username', '-meeting__meeting_date')
+        else:
+            queryset = queryset.order_by('-meeting__meeting_date', 'user__username')
+
+        # Data rows
+        for presence in queryset:
+            full_name = presence.user.get_full_name() or presence.user.username
+            status = 'Presente' if presence.present else 'Ausente'
+            ws.append([
+                presence.meeting.meeting_date.strftime('%d/%m/%Y'),
+                full_name,
+                presence.user.username,
+                status,
+                presence.created_at.strftime('%d/%m/%Y %H:%M')
+            ])
+
+        # Column widths
+        ws.column_dimensions['A'].width = 18
+        ws.column_dimensions['B'].width = 30
+        ws.column_dimensions['C'].width = 20
+        ws.column_dimensions['D'].width = 15
+        ws.column_dimensions['E'].width = 20
+
+        # Prepare response
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=relatorio_presencas.xlsx'
+
+        wb.save(response)
+        return response
+
+
+class ExportPresencePDFView(LoginRequiredMixin, UserPassesTestMixin, View):
+    '''View para exportar relatório de presenças para PDF'''
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request, *args, **kwargs):
+        # Create response
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename=relatorio_presencas.pdf'
+
+        # Create PDF
+        doc = SimpleDocTemplate(response, pagesize=A4)
+        elements = []
+
+        # Styles
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=18,
+            textColor=colors.HexColor('#006EB6'),
+            spaceAfter=30,
+            alignment=TA_CENTER
+        )
+
+        # Title
+        title = Paragraph('Relatório de Presenças - Avaí FC', title_style)
+        elements.append(title)
+
+        # Get queryset with filters
+        queryset = Presence.objects.select_related('user', 'meeting')
+
+        # Apply filters
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+
+        if start_date:
+            queryset = queryset.filter(meeting__meeting_date__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(meeting__meeting_date__lte=end_date)
+
+        # Apply ordering
+        order_by = request.GET.get('order_by', 'date')
+        if order_by == 'alphabetical':
+            queryset = queryset.order_by('user__first_name', 'user__last_name', 'user__username', '-meeting__meeting_date')
+        else:
+            queryset = queryset.order_by('-meeting__meeting_date', 'user__username')
+
+        # Table data
+        data = [['Data', 'Conselheiro', 'Username', 'Status']]
+
+        for presence in queryset:
+            full_name = presence.user.get_full_name() or presence.user.username
+            status = 'Presente' if presence.present else 'Ausente'
+            data.append([
+                presence.meeting.meeting_date.strftime('%d/%m/%Y'),
+                full_name,
+                presence.user.username,
+                status
+            ])
+
+        # Create table
+        table = Table(data)
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#006EB6')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
+        ]))
+
+        elements.append(table)
+
+        # Build PDF
+        doc.build(elements)
+        return response
+
+
+class ExportVotingExcelView(LoginRequiredMixin, UserPassesTestMixin, View):
+    '''View para exportar relatório de votação para Excel'''
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request, pk, *args, **kwargs):
+        voting = get_object_or_404(Voting, pk=pk)
+
+        # Create workbook
+        wb = Workbook()
+        ws = wb.active
+        ws.title = 'Relatório de Votação'
+
+        # Header styling
+        header_fill = PatternFill(start_color='006EB6', end_color='006EB6', fill_type='solid')
+        header_font = Font(bold=True, color='FFFFFF', size=12)
+        header_alignment = Alignment(horizontal='center', vertical='center')
+
+        # Title
+        ws.merge_cells('A1:D1')
+        ws['A1'] = f'Relatório de Votação - {voting.title}'
+        ws['A1'].font = Font(bold=True, size=14, color='006EB6')
+        ws['A1'].alignment = Alignment(horizontal='center')
+
+        # Voting info
+        ws.append([])
+        ws.append(['Descrição:', voting.description])
+        ws.append(['Início:', voting.start_date.strftime('%d/%m/%Y %H:%M')])
+        ws.append(['Término:', voting.end_date.strftime('%d/%m/%Y %H:%M')])
+        ws.append(['Total de Votos:', voting.total_votes()])
+        ws.append([])
+
+        # Results by option
+        ws.append(['Opção', 'Votos', 'Percentual', 'Votantes'])
+
+        for cell in ws[8]:
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = header_alignment
+
+        # Apply ordering
+        order_by = request.GET.get('order_by', 'default')
+
+        for option in voting.options.all().order_by('option_letter'):
+            votes = Vote.objects.filter(voting=voting, option=option).select_related('user')
+
+            # Order voters
+            if order_by == 'alphabetical':
+                votes = votes.order_by('user__first_name', 'user__last_name', 'user__username')
+            else:
+                votes = votes.order_by('-voted_at')
+
+            voters_list = ', '.join([
+                vote.user.get_full_name() or vote.user.username
+                for vote in votes
+            ])
+
+            percentage = (option.votes_count / voting.total_votes() * 100) if voting.total_votes() > 0 else 0
+
+            ws.append([
+                f'{option.option_letter}. {option.option_text}',
+                option.votes_count,
+                f'{percentage:.1f}%',
+                voters_list
+            ])
+
+        # Column widths
+        ws.column_dimensions['A'].width = 40
+        ws.column_dimensions['B'].width = 12
+        ws.column_dimensions['C'].width = 12
+        ws.column_dimensions['D'].width = 60
+
+        # Prepare response
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = f'attachment; filename=relatorio_votacao_{voting.pk}.xlsx'
+
+        wb.save(response)
+        return response
+
+
+class ExportVotingPDFView(LoginRequiredMixin, UserPassesTestMixin, View):
+    '''View para exportar relatório de votação para PDF'''
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request, pk, *args, **kwargs):
+        voting = get_object_or_404(Voting, pk=pk)
+
+        # Create response
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename=relatorio_votacao_{voting.pk}.pdf'
+
+        # Create PDF
+        doc = SimpleDocTemplate(response, pagesize=A4)
+        elements = []
+
+        # Styles
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=18,
+            textColor=colors.HexColor('#006EB6'),
+            spaceAfter=20,
+            alignment=TA_CENTER
+        )
+
+        subtitle_style = ParagraphStyle(
+            'CustomSubtitle',
+            parent=styles['Normal'],
+            fontSize=12,
+            spaceAfter=10,
+            alignment=TA_LEFT
+        )
+
+        # Title
+        title = Paragraph(f'Relatório de Votação', title_style)
+        elements.append(title)
+
+        # Voting info
+        elements.append(Paragraph(f'<b>Título:</b> {voting.title}', subtitle_style))
+        elements.append(Paragraph(f'<b>Descrição:</b> {voting.description}', subtitle_style))
+        elements.append(Paragraph(f'<b>Início:</b> {voting.start_date.strftime("%d/%m/%Y %H:%M")}', subtitle_style))
+        elements.append(Paragraph(f'<b>Término:</b> {voting.end_date.strftime("%d/%m/%Y %H:%M")}', subtitle_style))
+        elements.append(Paragraph(f'<b>Total de Votos:</b> {voting.total_votes()}', subtitle_style))
+        elements.append(Spacer(1, 20))
+
+        # Table data
+        data = [['Opção', 'Votos', 'Percentual']]
+
+        # Apply ordering
+        order_by = request.GET.get('order_by', 'default')
+
+        for option in voting.options.all().order_by('option_letter'):
+            votes = Vote.objects.filter(voting=voting, option=option).select_related('user')
+
+            # Order voters
+            if order_by == 'alphabetical':
+                votes = votes.order_by('user__first_name', 'user__last_name', 'user__username')
+
+            percentage = (option.votes_count / voting.total_votes() * 100) if voting.total_votes() > 0 else 0
+
+            data.append([
+                f'{option.option_letter}. {option.option_text}',
+                str(option.votes_count),
+                f'{percentage:.1f}%'
+            ])
+
+        # Create table
+        table = Table(data, colWidths=[4*inch, 1*inch, 1.5*inch])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#006EB6')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
+        ]))
+
+        elements.append(table)
+
+        # Detailed voters list
+        elements.append(Spacer(1, 20))
+        elements.append(Paragraph('<b>Detalhamento de Votos:</b>', subtitle_style))
+        elements.append(Spacer(1, 10))
+
+        for option in voting.options.all().order_by('option_letter'):
+            votes = Vote.objects.filter(voting=voting, option=option).select_related('user')
+
+            # Order voters
+            if order_by == 'alphabetical':
+                votes = votes.order_by('user__first_name', 'user__last_name', 'user__username')
+            else:
+                votes = votes.order_by('-voted_at')
+
+            voters_list = ', '.join([
+                vote.user.get_full_name() or vote.user.username
+                for vote in votes
+            ])
+
+            if voters_list:
+                elements.append(Paragraph(f'<b>{option.option_letter}. {option.option_text}:</b> {voters_list}', subtitle_style))
+
+        # Build PDF
+        doc.build(elements)
+        return response

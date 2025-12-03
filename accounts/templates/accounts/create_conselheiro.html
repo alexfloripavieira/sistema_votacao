@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}Cadastrar Conselheiro - Sistema de Votação{% endblock %}
+
+{% block content %}
+<div class="min-h-screen px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-gray-800 rounded-lg p-8 shadow-lg">
+            <h1 class="text-3xl font-bold text-white mb-6">Cadastrar Novo Conselheiro</h1>
+
+            {% if last_created %}
+                <div class="mb-6 p-6 rounded-lg {% if last_created.email_sent %}bg-green-600{% else %}bg-yellow-600{% endif %} text-white">
+                    <h2 class="text-xl font-bold mb-3">✓ Conselheiro Cadastrado com Sucesso!</h2>
+
+                    <div class="bg-gray-900 bg-opacity-50 rounded-lg p-4 mb-4">
+                        <div class="grid grid-cols-1 gap-2 text-sm">
+                            <div><strong>Nome:</strong> {{ last_created.name }}</div>
+                            <div><strong>Usuário:</strong> {{ last_created.username }}</div>
+                            <div><strong>Email:</strong> {{ last_created.email }}</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-red-900 border-2 border-yellow-400 rounded-lg p-4">
+                        <p class="text-yellow-400 font-bold mb-2">⚠️ SENHA TEMPORÁRIA - ANOTE OU COPIE AGORA!</p>
+                        <div class="flex items-center justify-between bg-gray-900 rounded p-3">
+                            <code id="senhaTemp" class="text-2xl font-mono text-yellow-300 tracking-wider">{{ last_created.password }}</code>
+                            <button onclick="copiarSenha('{{ last_created.password }}')"
+                                    class="bg-avai-blue hover:bg-avai-blue-dark px-4 py-2 rounded font-semibold ml-3 whitespace-nowrap">
+                                📋 Copiar Senha
+                            </button>
+                        </div>
+                        <p class="text-xs mt-2 text-gray-200">
+                            Esta senha será necessária para o primeiro login do conselheiro.
+                            O conselheiro será obrigado a trocar esta senha no primeiro acesso.
+                        </p>
+                    </div>
+
+                    {% if last_created.email_sent %}
+                        <p class="mt-3 text-sm">✉️ Email enviado para <strong>{{ last_created.email }}</strong> com as credenciais.</p>
+                    {% else %}
+                        <p class="mt-3 text-sm">⚠️ Email não foi enviado: {{ last_created.error }}. Você deve enviar as credenciais manualmente.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-600{% else %}bg-avai-blue{% endif %} text-white">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+
+                <div>
+                    <label for="{{ form.username.id_for_label }}" class="block text-gray-300 mb-2">
+                        {{ form.username.label }}
+                    </label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.email.id_for_label }}" class="block text-gray-300 mb-2">
+                        {{ form.email.label }}
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="{{ form.first_name.id_for_label }}" class="block text-gray-300 mb-2">
+                            {{ form.first_name.label }}
+                        </label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ form.first_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.last_name.id_for_label }}" class="block text-gray-300 mb-2">
+                            {{ form.last_name.label }}
+                        </label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ form.last_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <h3 class="text-white font-semibold mb-3">Permissões</h3>
+
+                    <div class="flex items-center mb-3">
+                        {{ form.is_staff }}
+                        <label for="{{ form.is_staff.id_for_label }}" class="ml-2 text-gray-300">
+                            {{ form.is_staff.label }}
+                            <span class="text-gray-400 text-sm block">Pode acessar o painel administrativo</span>
+                        </label>
+                    </div>
+
+                    <div class="flex items-center">
+                        {{ form.is_superuser }}
+                        <label for="{{ form.is_superuser.id_for_label }}" class="ml-2 text-gray-300">
+                            {{ form.is_superuser.label }}
+                            <span class="text-gray-400 text-sm block">Tem todas as permissões sem precisar atribuí-las explicitamente</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="bg-avai-blue-darker p-4 rounded-lg">
+                    <p class="text-white text-sm">
+                        <strong>Importante:</strong> Uma senha temporária será gerada automaticamente e exibida após o cadastro.
+                        O conselheiro deverá trocar esta senha no primeiro login.
+                    </p>
+                </div>
+
+                <div class="flex gap-4">
+                    <button type="submit"
+                            class="bg-avai-blue hover:bg-avai-blue-dark text-white rounded-lg px-6 py-3 transition-colors font-semibold">
+                        Cadastrar Conselheiro
+                    </button>
+
+                    <a href="{% url 'dashboard' %}"
+                       class="bg-gray-700 hover:bg-gray-600 text-white rounded-lg px-6 py-3 transition-colors font-semibold">
+                        Voltar ao Dashboard
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function copiarSenha(senha) {
+    // Criar elemento temporário
+    const temp = document.createElement('textarea');
+    temp.value = senha;
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand('copy');
+    document.body.removeChild(temp);
+
+    // Feedback visual
+    alert('Senha copiada para a área de transferência!');
+}
+</script>
+{% endblock %}

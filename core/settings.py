@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'accounts.middleware.PasswordChangeMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -154,3 +155,17 @@ CACHES = {
         }
     }
 }
+
+# Email settings
+# Para desenvolvimento, usar console backend (imprime emails no terminal)
+# Para produção, configurar SMTP real
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Configurações SMTP para produção (comentadas por padrão)
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'  # ou outro provedor SMTP
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'seu-email@gmail.com'
+# EMAIL_HOST_PASSWORD = 'sua-senha-de-app'
+# DEFAULT_FROM_EMAIL = 'Sistema de Votação Avaí FC <seu-email@gmail.com>'

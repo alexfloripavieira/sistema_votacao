@@ -17,7 +17,40 @@
         <div class='bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-8 mb-6'>
             <h1 class='text-3xl font-bold text-white mb-4'>Relatório Completo</h1>
             <h2 class='text-2xl text-gray-300 mb-6'>{{ voting.title }}</h2>
-            
+
+            <!-- Export and Ordering Options -->
+            <div class='mb-6 pb-6 border-b border-gray-700'>
+                <div class='flex flex-wrap gap-3 items-center'>
+                    <span class='text-gray-300 font-semibold mr-2'>Ordenar por:</span>
+                    <div class='flex gap-2'>
+                        <a href='?order_by=default'
+                           class='px-4 py-2 rounded-lg {% if not request.GET.order_by or request.GET.order_by == "default" %}bg-avai-blue text-white{% else %}bg-gray-700 text-gray-300 hover:bg-gray-600{% endif %} transition duration-200'>
+                            Data do Voto
+                        </a>
+                        <a href='?order_by=alphabetical'
+                           class='px-4 py-2 rounded-lg {% if request.GET.order_by == "alphabetical" %}bg-avai-blue text-white{% else %}bg-gray-700 text-gray-300 hover:bg-gray-600{% endif %} transition duration-200'>
+                            Ordem Alfabética
+                        </a>
+                    </div>
+                    <div class='ml-auto flex gap-3'>
+                        <a href='{% url "business:export_voting_excel" voting.pk %}?{{ request.GET.urlencode }}'
+                           class='flex items-center bg-avai-blue-light hover:bg-avai-blue text-white px-4 py-2 rounded-lg transition duration-200 font-semibold'>
+                            <svg class='w-5 h-5 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'></path>
+                            </svg>
+                            Exportar Excel
+                        </a>
+                        <a href='{% url "business:export_voting_pdf" voting.pk %}?{{ request.GET.urlencode }}'
+                           class='flex items-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition duration-200 font-semibold'>
+                            <svg class='w-5 h-5 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z'></path>
+                            </svg>
+                            Exportar PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <div class='grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 pb-6 border-b border-gray-700'>
                 <div class='text-center'><div class='text-4xl font-bold text-avai-blue'>{{ total_votes }}</div><div class='text-sm text-gray-400'>Total de Votos</div></div>
                 {% if eligible_voters %}<div class='text-center'><div class='text-4xl font-bold text-avai-blue-light'>{{ eligible_voters }}</div><div class='text-sm text-gray-400'>Votantes Elegíveis</div></div>{% endif %}
